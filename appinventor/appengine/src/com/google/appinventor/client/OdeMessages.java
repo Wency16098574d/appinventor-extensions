@@ -6703,4 +6703,9 @@ public interface OdeMessages extends Messages {
   @DefaultMessage("GetScannedInfo")
   @Description("")
   String GetScannedInfoEvents();
+
+  @DefaultMessage("AddBeacons")
+  @Description("")
+  String AddBeaconsMethods();
+
 }
