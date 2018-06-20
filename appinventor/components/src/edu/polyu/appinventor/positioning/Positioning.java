@@ -36,7 +36,7 @@ import java.util.Set;
 //???????????????????????verion, nonvisible
 @DesignerComponent(version = 20171107,
         description = "indoor " +
-                "positioning",~
+                "positioning",
         category = ComponentCategory.EXTENSION,
         nonVisible = true,
         helpUrl = "http://",
