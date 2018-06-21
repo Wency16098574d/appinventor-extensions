@@ -6699,13 +6699,34 @@ public interface OdeMessages extends Messages {
   @Description("")
   String reloadWindow();
 
-
   @DefaultMessage("GetScannedInfo")
   @Description("")
   String GetScannedInfoEvents();
 
-  @DefaultMessage("AddBeacons")
+  @DefaultMessage("CreateBeacon")
   @Description("")
-  String AddBeaconsMethods();
+  String CreateBeaconMethods();
+
+  @DefaultMessage("AddBeacon")
+  @Description("")
+  String AddBeaconMethods();
+
+  @DefaultMessage("GetBeacon")
+  @Description("")
+  String GetBeaconMethods();
+
+  @DefaultMessage("DeleteBeacon")
+  @Description("")
+  String DeleteBeaconMethods();
+
+  @DefaultMessage("SetBeacon")
+  @Description("")
+  String SetBeaconMethods();
+
+
+  @DefaultMessage("BeaconList")
+  @Description("")
+  String BeaconList();
+
 
 }

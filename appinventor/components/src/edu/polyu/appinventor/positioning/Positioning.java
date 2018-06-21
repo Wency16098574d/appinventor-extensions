@@ -47,13 +47,30 @@ import java.util.Set;
 @UsesPermissions(permissionNames = "android.permission.BLUETOOTH, " + "android.permission.BLUETOOTH_ADMIN,"
         + "android.permission.ACCESS_COARSE_LOCATION")
 
-//public class Positioning {}
+
+
+
+
+
+
+
+
+
+
+
 
 
 public class Positioning extends AndroidNonvisibleComponent implements Component {
+
     private static final String LOG_TAG = "Positioning";
 
     private final ComponentContainer container;
+    private List<String> BeaconList;
+
+
+
+
+
 
     /**
      * Creates a Positioning component.
@@ -65,11 +82,54 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         this.container = container;
     }
 
-    /**
-     * Method to add known beacons (the anchors)
-     */
-    @SimpleFunction
-    public void AddBeacons() {
 
+
+
+
+
+
+    @SimpleFunction
+    public String CreateBeacon(String BeaconID, String X, String Y) {
+        return BeaconID + " , " + X + " , " + Y;
     }
+
+
+    @SimpleFunction
+    public void AddBeacon(String Beacon) {
+        BeaconList.add(Beacon);
+    }
+
+    @SimpleFunction
+    public String GetBeacon(String BeaconID) {
+        for (String b : BeaconList)
+            if (BeaconID.equals(b.substring(0, BeaconID.length())))
+                return b;
+        return "error"; //Exception throwing need to be added
+    }
+
+    @SimpleFunction
+    public void DeleteBeacon(String BeaconID) {
+        BeaconList.remove(GetBeacon(BeaconID));
+    }
+
+
+
+    //Set... Better?
+    @SimpleFunction
+    public void SetBeacon(String BeaconID, String X, String Y) {
+        int i;
+        for (i = 0; i < BeaconList.size(); i++)
+            if (BeaconID.equals(BeaconList.get(i)))
+                break;
+        BeaconList.set(i, CreateBeacon(BeaconID, X, Y) );
+    }
+
+
+
+
+    @SimpleProperty(description = "Returns a list of the Beacons.")
+    public List<String> BeaconList() {
+        return BeaconList;
+    }
+
 }
