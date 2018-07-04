@@ -23,6 +23,7 @@ import com.google.appinventor.components.runtime.util.SdkLevel;
 import com.google.appinventor.components.runtime.util.YailList;
 import gnu.lists.FString;
 
+import java.lang.*;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +67,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     private final ComponentContainer container;
     private List<String> BeaconList;
-
+    private float x;
+    private float y;
 
 
 
@@ -89,8 +91,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
 
     @SimpleFunction
-    public String CreateBeacon(String BeaconID, String X, String Y) {
-        return BeaconID + " , " + X + " , " + Y;
+    public String CreateBeacon(String BeaconID, float X, float Y) {
+        return BeaconID + "," + X + "," + Y;
     }
 
 
@@ -99,29 +101,51 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         BeaconList.add(Beacon);
     }
 
-    @SimpleFunction
-    public String GetBeacon(String BeaconID) {
-        for (String b : BeaconList)
-            if (BeaconID.equals(b.substring(0, BeaconID.length())))
-                return b;
-        return "error"; //Exception throwing need to be added
-    }
+//    @SimpleFunction
+//    public String GetBeacon(String BeaconID) {
+//        for (String b : BeaconList)
+//            if (BeaconID.equals(b.substring(0, BeaconID.length())))
+//                return b;
+//        return "error"; //Exception throwing need to be added
+//    }
 
     @SimpleFunction
     public void DeleteBeacon(String BeaconID) {
-        BeaconList.remove(GetBeacon(BeaconID));
+        BeaconList.remove(getBeaconIndex(BeaconID));
     }
 
-
-
-    //Set... Better?
-    @SimpleFunction
-    public void SetBeacon(String BeaconID, String X, String Y) {
+    private int getBeaconIndex(String BeaconID){
         int i;
         for (i = 0; i < BeaconList.size(); i++)
             if (BeaconID.equals(BeaconList.get(i)))
-                break;
-        BeaconList.set(i, CreateBeacon(BeaconID, X, Y) );
+                return i;
+        return -1; //throw exception ?
+    }
+
+
+    @SimpleFunction
+    public void SetBeacon(String BeaconID, float X, float Y) {
+        BeaconList.set(getBeaconIndex(BeaconID), CreateBeacon(BeaconID, X, Y) );
+    }
+
+    private float getX(String BeaconID){
+        String beacon = BeaconList.get(getBeaconIndex(BeaconID));
+
+        int beg = 0, end = 0;
+        do{ beg++; }while(beacon.charAt(beg) == ',');
+        end = beg;
+        do{ end++; }while(beacon.charAt(beg) == ',');
+
+        return Float.parseFloat(beacon.substring(++beg, end));
+    }
+
+    @SimpleFunction
+    public void DoPositioning(String DeviceList){
+
+    }
+
+    @SimpleEvent(description = "Trigger event when Location changes")
+    public void LocationChanged() {
     }
 
 
@@ -131,5 +155,42 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     public List<String> BeaconList() {
         return BeaconList;
     }
+
+    @SimpleProperty(description = "Returns the location.")
+    public String Location() {
+        return x + ", " + y;
+    }
+
+
+
+
+
+
+
+//    private class Beacon {
+//        String ID;
+//        float X;
+//        float Y;
+//
+//        public Beacon(String ID, float X, float Y){
+//            this.ID = new String(ID);
+//            this.X = X;
+//            this.Y = Y;
+//        }
+//
+//        public String getBeacon(){  return ID + X + Y;  }
+//
+//        public String getID(){  return ID;   }
+//
+//        public float getX(){    return X;   }
+//
+//        public float getY(){    return Y;   }
+//
+//        public void setX(float X){    this.X = X; }
+//
+//        public void setY(float Y){    this.Y = Y; }
+//
+//
+//    }
 
 }

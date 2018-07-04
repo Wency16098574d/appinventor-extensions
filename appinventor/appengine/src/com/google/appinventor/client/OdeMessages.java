@@ -6711,9 +6711,9 @@ public interface OdeMessages extends Messages {
   @Description("")
   String AddBeaconMethods();
 
-  @DefaultMessage("GetBeacon")
-  @Description("")
-  String GetBeaconMethods();
+//  @DefaultMessage("GetBeacon")
+//  @Description("")
+//  String GetBeaconMethods();
 
   @DefaultMessage("DeleteBeacon")
   @Description("")
@@ -6723,10 +6723,17 @@ public interface OdeMessages extends Messages {
   @Description("")
   String SetBeaconMethods();
 
+  @DefaultMessage("DoPositioning")
+  @Description("")
+  String DoPositioningMethods();
+
 
   @DefaultMessage("BeaconList")
   @Description("")
   String BeaconList();
 
+  @DefaultMessage("Location")
+  @Description("")
+  String Location();
 
 }
