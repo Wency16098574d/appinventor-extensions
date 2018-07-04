@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     private static final String LOG_TAG = "Positioning";
 
     private final ComponentContainer container;
-    private List<String> BeaconList;
+
+    private List<String> BeaconListString;
+    private List<Beacon> BeaconList;
+//    private HashMap<Beacon, List<Float>> hmap = new HashMap<Beacon, List<Float>>();
     private float x;
     private float y;
 
@@ -92,13 +96,15 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleFunction
     public String CreateBeacon(String BeaconID, float X, float Y) {
-        return BeaconID + "," + X + "," + Y;
+        BeaconList.add(new Beacon(BeaconID, X, Y));
+        return BeaconID + "," + X + "," + Y; //string
     }
 
 
     @SimpleFunction
     public void AddBeacon(String Beacon) {
-        BeaconList.add(Beacon);
+        BeaconListString.add(Beacon);   //string
+        //BeaconString is returned by CretedBeacon, no need to add to BeaconList
     }
 
 //    @SimpleFunction
@@ -111,13 +117,15 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleFunction
     public void DeleteBeacon(String BeaconID) {
+        BeaconListString.remove(getBeaconIndex(BeaconID)); //string
         BeaconList.remove(getBeaconIndex(BeaconID));
     }
 
+
     private int getBeaconIndex(String BeaconID){
         int i;
-        for (i = 0; i < BeaconList.size(); i++)
-            if (BeaconID.equals(BeaconList.get(i)))
+        for(i = 0; i < BeaconList.size(); i++)
+            if(BeaconID.equals(BeaconList.get(i).getID()))
                 return i;
         return -1; //throw exception ?
     }
@@ -125,18 +133,27 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleFunction
     public void SetBeacon(String BeaconID, float X, float Y) {
-        BeaconList.set(getBeaconIndex(BeaconID), CreateBeacon(BeaconID, X, Y) );
+        BeaconListString.set(getBeaconIndex(BeaconID), CreateBeacon(BeaconID, X, Y) );//string
+        Beacon beacon = BeaconList.get(getBeaconIndex(BeaconID));
+        beacon.setX(X);
+        beacon.setX(Y);
     }
 
     private float getX(String BeaconID){
-        String beacon = BeaconList.get(getBeaconIndex(BeaconID));
 
-        int beg = 0, end = 0;
-        do{ beg++; }while(beacon.charAt(beg) == ',');
-        end = beg;
-        do{ end++; }while(beacon.charAt(beg) == ',');
+//        String beacon = BeaconList.get(getBeaconIndex(BeaconID));
+//
+//        int beg = 0, end = 0;
+//        do{ beg++; }while(beacon.charAt(beg) == ',');
+//        end = beg;
+//        do{ end++; }while(beacon.charAt(beg) == ',');
+//
+//        return Float.parseFloat(beacon.substring(++beg, end));
+        return BeaconList.get(getBeaconIndex(BeaconID)).getX();
+    }
 
-        return Float.parseFloat(beacon.substring(++beg, end));
+    private float getY(String BeaconID){
+        return BeaconList.get(getBeaconIndex(BeaconID)).getY();
     }
 
     @SimpleFunction
@@ -152,8 +169,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
 
     @SimpleProperty(description = "Returns a list of the Beacons.")
-    public List<String> BeaconList() {
-        return BeaconList;
+    public List<String> BeaconListString() {//string
+        return BeaconListString;
     }
 
     @SimpleProperty(description = "Returns the location.")
@@ -167,30 +184,30 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
 
 
-//    private class Beacon {
-//        String ID;
-//        float X;
-//        float Y;
-//
-//        public Beacon(String ID, float X, float Y){
-//            this.ID = new String(ID);
-//            this.X = X;
-//            this.Y = Y;
-//        }
-//
-//        public String getBeacon(){  return ID + X + Y;  }
-//
-//        public String getID(){  return ID;   }
-//
-//        public float getX(){    return X;   }
-//
-//        public float getY(){    return Y;   }
-//
-//        public void setX(float X){    this.X = X; }
-//
-//        public void setY(float Y){    this.Y = Y; }
-//
-//
-//    }
+    private class Beacon {
+        String ID;
+        float X;
+        float Y;
+
+        public Beacon(String ID, float X, float Y){
+            this.ID = new String(ID);
+            this.X = X;
+            this.Y = Y;
+        }
+
+        public String getBeacon(){  return ID + X + Y;  }
+
+        public String getID(){  return ID;   }
+
+        public float getX(){    return X;   }
+
+        public float getY(){    return Y;   }
+
+        public void setX(float X){    this.X = X; }
+
+        public void setY(float Y){    this.Y = Y; }
+
+
+    }
 
 }
