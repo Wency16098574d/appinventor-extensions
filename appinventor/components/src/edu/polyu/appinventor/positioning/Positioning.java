@@ -271,7 +271,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 //        uiThread.postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
-        EventDispatcher.dispatchEvent(this, "LocationChanged", Location);
+        EventDispatcher.dispatchEvent(this, "LocationChanged", locX, locY);
 //            }
 //        }, 1000);
     }
