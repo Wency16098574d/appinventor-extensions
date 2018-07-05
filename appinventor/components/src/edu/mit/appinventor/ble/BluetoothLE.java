@@ -1214,10 +1214,20 @@ public class BluetoothLE extends AndroidNonvisibleComponent implements Component
    *
    * @param rssi the strength of the received signal, from -100 to 0.
    */
+
+
+  //New Event which returns the new scanned deviceID and rssi
+  @SimpleEvent
+  public void GetScannedInfo(final String deviceID, final int rssi) {
+  }
+
+
   @SimpleEvent(description = "Trigger event when RSSI (Received Signal Strength Indicator) of found" +
       " BluetoothLE device changes")
   public void RssiChanged(final int rssi) {
   }
+
+
 
   /**
    * The <code>DeviceFound</code> event is run when a new Bluetooth low energy device is found.

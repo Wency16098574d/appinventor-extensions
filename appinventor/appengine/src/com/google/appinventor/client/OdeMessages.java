@@ -6699,4 +6699,8 @@ public interface OdeMessages extends Messages {
   @Description("")
   String reloadWindow();
 
+
+  @DefaultMessage("GetScannedInfo")
+  @Description("")
+  String GetScannedInfoEvents();
 }
