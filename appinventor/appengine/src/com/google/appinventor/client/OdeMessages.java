@@ -6699,10 +6699,6 @@ public interface OdeMessages extends Messages {
   @Description("")
   String reloadWindow();
 
-  @DefaultMessage("GetScannedInfo")
-  @Description("")
-  String GetScannedInfoEvents();
-
   @DefaultMessage("CreateBeacon")
   @Description("")
   String CreateBeaconMethods();
@@ -6711,9 +6707,6 @@ public interface OdeMessages extends Messages {
   @Description("")
   String AddBeaconMethods();
 
-//  @DefaultMessage("GetBeacon")
-//  @Description("")
-//  String GetBeaconMethods();
 
   @DefaultMessage("DeleteBeacon")
   @Description("")
@@ -6727,6 +6720,9 @@ public interface OdeMessages extends Messages {
   @Description("")
   String DoPositioningMethods();
 
+  @DefaultMessage("GetScannedInfo")
+  @Description("")
+  String GetScannedInfoEvents();
 
   @DefaultMessage("BeaconList")
   @Description("")
