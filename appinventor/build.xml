@@ -94,7 +94,6 @@
         <pathelement location="components/src" />
       </sourcepath>
       <classpath>
-	<pathelement location="lib/positioning/commons-math3-3.6.1.jar" /> <!-- Trilateration lib -->
         <pathelement location="lib/android/5.1.1/android.jar" />
         <pathelement location="lib/android/tools/ddmlib.jar"/>
         <pathelement location="lib/bouncycastle/bcprov-jdk15on-149.jar"/>

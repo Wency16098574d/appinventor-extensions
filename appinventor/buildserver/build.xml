@@ -48,7 +48,6 @@
        ===================================================================== -->
   <target name="BuildServer"
           depends="init,CopyToRunLibDir,components_AndroidRuntime,components_Barcode,components_ComponentList">
-    <pathelement location=${lib.dir}/positioning/commons-math3-3.6.1.jar" />	<!-- Trilateration lib -->
     <property name="BuildServer-class.dir" location="${class.dir}/BuildServer" />
     <mkdir dir="${BuildServer-class.dir}" />
 
@@ -66,7 +65,6 @@
       <fileset dir="${build.dir}/components"
                includes="AndroidRuntime.jar,Barcode.jar,simple_components.txt,simple_components_build_info.json,simple_components.json"/>
     </copy>
-    <copy toFile="${classes.files.dir}/commonsmath3.jar" file="${lib.dir}/positioning/commons-math3-3.6.1.jar" /> <!-- Trilateration lib -->
     <copy toFile="${classes.files.dir}/kawa.jar" file="${lib.dir}/kawa/kawa-1.11-modified.jar" />
     <copy toFile="${classes.files.dir}/acra-4.4.0.jar" file="${lib.dir}/acra/acra-4.4.0.jar" />
     <copy toFile="${classes.files.dir}/twitter4j.jar" file="${lib.dir}/twitter/twitter4j-core-3.0.5.jar" />
