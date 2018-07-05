@@ -1,0 +1,9 @@
+diff a/appinventor/components/build.xml b/appinventor/components/build.xml	(rejected hunks)
+@@ -127,7 +127,6 @@
+       <!--<include name="${components.pkg}/annotations/*.java" /> -->
+       <!--<include name="${components.pkg}/runtime/**/*.java" /> -->
+       <classpath>
+-	<pathelement location="${lib.dir}/positioning/commons-math3-3.6.1.jar" /> <!-- Trilateration lib -->
+         <pathelement location="${local.build.dir}/HtmlEntities.jar" />
+         <pathelement location="${public.build.dir}/CommonConstants.jar" />
+         <pathelement location="${build.dir}/common/CommonVersion.jar" />

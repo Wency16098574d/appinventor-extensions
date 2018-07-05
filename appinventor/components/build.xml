@@ -127,6 +127,7 @@
       <!--<include name="${components.pkg}/annotations/*.java" /> -->
       <!--<include name="${components.pkg}/runtime/**/*.java" /> -->
       <classpath>
+	<pathelement location="${lib.dir}/positioning/commons-math3-3.6.1.jar" /> <!-- Trilateration lib -->
         <pathelement location="${local.build.dir}/HtmlEntities.jar" />
         <pathelement location="${public.build.dir}/CommonConstants.jar" />
         <pathelement location="${build.dir}/common/CommonVersion.jar" />
@@ -235,6 +236,7 @@
         <exclude name="${components.pkg}/common/**/*.java" /> <!-- exclude components/common package -->
         <exclude name="${components.pkg}/annotations/**/*.java" /> <!-- exclude components/annotations package -->
         <classpath>
+	  <pathelement location="${lib.dir}/positioning/commons-math3-3.6.1.jar" /> <!-- Trilateration lib -->
           <pathelement location="${public.build.dir}/AndroidRuntime.jar" />
           <pathelement location="${local.build.dir}/HtmlEntities.jar" />
           <pathelement location="${public.build.dir}/CommonConstants.jar" />
