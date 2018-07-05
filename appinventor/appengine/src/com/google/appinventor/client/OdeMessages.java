@@ -6707,14 +6707,13 @@ public interface OdeMessages extends Messages {
   @Description("")
   String AddBeaconMethods();
 
+  @DefaultMessage("SetBeacon")
+  @Description("")
+  String SetBeaconMethods();
 
   @DefaultMessage("DeleteBeacon")
   @Description("")
   String DeleteBeaconMethods();
-
-  @DefaultMessage("SetBeacon")
-  @Description("")
-  String SetBeaconMethods();
 
   @DefaultMessage("DoPositioning")
   @Description("")
@@ -6724,12 +6723,21 @@ public interface OdeMessages extends Messages {
   @Description("")
   String GetScannedInfoEvents();
 
-  @DefaultMessage("BeaconList")
+  //Q10. already exist from different component, ignore or change name?
+//  @DefaultMessage("LocationChanged")
+//  @Description("")
+//  String LocationChangedEvents();
+
+  @DefaultMessage("BeaconListString")
   @Description("")
   String BeaconList();
 
-  @DefaultMessage("Location")
+  @DefaultMessage("locX")
   @Description("")
-  String Location();
+  String locX();
+
+  @DefaultMessage("locY")
+  @Description("")
+  String locY();
 
 }

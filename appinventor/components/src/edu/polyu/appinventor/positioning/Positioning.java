@@ -187,6 +187,26 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return BeaconList.get(getBeaconIndex(BeaconID)).getY();
     }
 
+    @SimpleFunction
+    public void DoPositioning(String BeaconID, int Rssi){
+        //Q6. not exist --> return vs only connect exist
+        if(!beaconExist(BeaconID)) return;
+        BeaconList.get(getBeaconIndex(BeaconID)).addRssi(Rssi);
+
+        long curTime = Calendar.getInstance().getTimeInMillis();
+        if((lastCalTime - curTime) / 1e9 < Interval) return;
+
+        lastCalTime = curTime;
+
+        //=====filtering======
+        List<Double> distance = filterMean();
+
+        //=======positioning========
+        positioningTrilateration(distance);
+
+        for(int i = 0; i < N; i++)  BeaconList.get(i).getRssi().clear();
+    }
+
     private double convertDistance(double rssi) {
         double txPower = -59; //hard coded power value. Usually ranges between -59 to -65
 //      if (rssi == 0)    return -1.0;
@@ -205,40 +225,28 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
             m = RssiList.size();
             temp = 0;
 
+            //Q9. no record? (not count by adding null and checking null)
+            if(m == 0) {    distance.add(null); break;  }
             for(int j = 0; j < m; j++)    temp += RssiList.get(j);
             distance.add(convertDistance(temp/m));
         }
         return distance;
     }
 
-    @SimpleFunction
-    public void DoPositioning(String BeaconID, int Rssi){
-        //Q6. not exist --> return vs only connect exist
-        if(!beaconExist(BeaconID)) return;
-        BeaconList.get(getBeaconIndex(BeaconID)).addRssi(Rssi);
-
-        long curTime = Calendar.getInstance().getTimeInMillis();
-        if((lastCalTime - curTime) / 1e9 < Interval) return;
-
-        lastCalTime = curTime;
-
-        //=====filtering======
-        List<Double> distance = filterMean();
-
-        //=======positioning========
-        positioningTrilateration(distance);
-    }
-
     private void positioningTrilateration(List<Double> Distance){
         //Q7. parameter type list or array --> better to store in list, let algorithm to convert to array if necessary
         //preparing parameters
-        double[][] positions = new double[N] [2];
-        double[] distances = new double[N];
+        int n = 0;
+        for(int i = 0; i < N; i++)  if(Distance.get(i) != null) n++;
+        double[][] positions = new double[n] [2];
+        double[] distances = new double[n];
 
+        int j = 0;
         for(int i = 0; i < N; i++){
-            positions[i][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
-            positions[i][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
-            distances[i] = Double.parseDouble(String.valueOf(Distance.get(i)));
+            if(Distance.get(i) == null) break;
+            positions[j++][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
+            positions[j++][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
+            distances[j++] = Double.parseDouble(String.valueOf(Distance.get(i)));
         }
 
         //algorithm
@@ -255,11 +263,11 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         locY = centroid[1];
 
         //trigger the locationChanged event
-        LocationChanged(String.valueOf(locX) + ", " + String.valueOf(locY));
+        LocationChanged(locX, locY);
     }
 
     @SimpleEvent(description = "Trigger event when Location changes")
-    public void LocationChanged(final String Location) {
+    public void LocationChanged(final double locX, final double locY) {
 //        uiThread.postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
@@ -274,9 +282,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     }
 
     //Q8. still need returning location <-- stop scanning, get last location
-    @SimpleProperty(description = "Returns the location.")
-    public String Location() {
-        return locX + ", " + locY;
-    }
+    @SimpleProperty(description = "Returns the location X.")
+    public double locX() { return locX; }
+
+    @SimpleProperty(description = "Returns the location Y.")
+    public double locY() { return locY; }
 
 }
