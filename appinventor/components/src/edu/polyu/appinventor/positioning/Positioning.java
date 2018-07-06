@@ -7,6 +7,7 @@ import com.google.appinventor.components.annotations.SimpleEvent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
+import com.google.appinventor.components.annotations.UsesLibraries;
 import com.google.appinventor.components.annotations.UsesPermissions;
 
 import com.google.appinventor.components.common.ComponentCategory;
@@ -59,6 +60,7 @@ import android.os.Handler;
         + "android.permission.ACCESS_COARSE_LOCATION")
 
 
+@UsesLibraries(libraries = "commonsmath3.jar")
 
 public class Positioning extends AndroidNonvisibleComponent implements Component {
 
@@ -72,9 +74,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     private HashMap<Beacon, List<Float>> hmap = new HashMap<Beacon, List<Float>>();
     private double locX;
     private double locY;
-    //Q5. maintain N vs getlength each time
-    private int N;
-    private long lastCalTime = Calendar.getInstance().getTimeInMillis(); //Q3. Intialize the time or later?
+    private int N = 0;
+    private long lastCalTime = Calendar.getInstance().getTimeInMillis(); //A3. Intialize the time or later? add judgement
     private long Interval = 2000; //in microsecends
 
 
@@ -118,7 +119,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         super(container.$form());
         this.container = container;
 
-        //Q2: better?
+        //A2: better?
 //        Handler uiThread = new Handler();
 //        BeaconListString = new ArrayList<String>();
 //        BeaconList = new ArrayList<Beacon>();
@@ -143,7 +144,6 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleFunction
     public String CreateBeacon(String BeaconID, float X, float Y) {
-        //Q4. Check exsitence. cover vs. error message? --> exception?
         if(beaconExist(BeaconID)) throw new IllegalArgumentException("Device already exists: " + BeaconID);
         Beacon beacon = new Beacon(BeaconID, X, Y);
         BeaconList.add(beacon);
@@ -189,12 +189,14 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleFunction
     public void DoPositioning(String BeaconID, int Rssi){
-        //Q6. not exist --> return vs only connect exist
         if(!beaconExist(BeaconID)) return;
         BeaconList.get(getBeaconIndex(BeaconID)).addRssi(Rssi);
 
         long curTime = Calendar.getInstance().getTimeInMillis();
-        if((lastCalTime - curTime) / 1e9 < Interval) return;
+        if((curTime - lastCalTime) < Interval) return;
+
+
+        TestPoint(curTime - lastCalTime, Interval);
 
         lastCalTime = curTime;
 
@@ -202,6 +204,9 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         List<Double> distance = filterMean();
 
         //=======positioning========
+        int n = 0;
+        for(int i = 0; i < N; i++)  if(distance.get(i) != null) n++;
+        if(n < 3) return;
         positioningTrilateration(distance);
 
         for(int i = 0; i < N; i++)  BeaconList.get(i).getRssi().clear();
@@ -215,6 +220,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         else return ((0.89976) * Math.pow(ratio, 7.7095) + 0.111);
     }
 
+    //TODO A7. seperate convert distance
+    //TODO
     private List<Double> filterMean(){
         int m, temp;
         List<Integer> RssiList;
@@ -225,8 +232,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
             m = RssiList.size();
             temp = 0;
 
-            //Q9. no record? (not count by adding null and checking null)
-            if(m == 0) {    distance.add(null); break;  }
+            if(m == 0)  {   distance.add(null); continue;   }
             for(int j = 0; j < m; j++)    temp += RssiList.get(j);
             distance.add(convertDistance(temp/m));
         }
@@ -234,20 +240,22 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     }
 
     private void positioningTrilateration(List<Double> Distance){
-        //Q7. parameter type list or array --> better to store in list, let algorithm to convert to array if necessary
         //preparing parameters
+        TestPoint(1, 3);
         int n = 0;
         for(int i = 0; i < N; i++)  if(Distance.get(i) != null) n++;
+        TestPoint(2, n);
         double[][] positions = new double[n] [2];
         double[] distances = new double[n];
 
         int j = 0;
-        for(int i = 0; i < N; i++){
+        for(int i = 0; i < n; i++){
             if(Distance.get(i) == null) break;
-            positions[j++][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
-            positions[j++][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
+            positions[j][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
+            positions[j][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
             distances[j++] = Double.parseDouble(String.valueOf(Distance.get(i)));
         }
+        TestPoint(3, 3);
 
         //algorithm
         NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
@@ -268,12 +276,12 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleEvent(description = "Trigger event when Location changes")
     public void LocationChanged(final double locX, final double locY) {
-//        uiThread.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
         EventDispatcher.dispatchEvent(this, "LocationChanged", locX, locY);
-//            }
-//        }, 1000);
+    }
+
+    @SimpleEvent
+    public void TestPoint(final long a, final long b) {
+        EventDispatcher.dispatchEvent(this, "TestPoint", a, b);
     }
 
     @SimpleProperty(description = "Returns a list of the Beacons.")
@@ -281,7 +289,6 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return BeaconListString;
     }
 
-    //Q8. still need returning location <-- stop scanning, get last location
     @SimpleProperty(description = "Returns the location X.")
     public double locX() { return locX; }
 

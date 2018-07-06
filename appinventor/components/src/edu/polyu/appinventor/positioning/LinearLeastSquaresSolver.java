@@ -3,6 +3,7 @@ package edu.polyu.appinventor.positioning;
 
 import org.apache.commons.math3.linear.*;
 
+
 /**
  *
  * For testing only. A linear approach to solve the Trilateration problem.
@@ -10,6 +11,8 @@ import org.apache.commons.math3.linear.*;
  *
  * @author scott
  */
+
+
 public class LinearLeastSquaresSolver {
 
     protected final TrilaterationFunction function;

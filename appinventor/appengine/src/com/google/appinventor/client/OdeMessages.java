@@ -6723,6 +6723,10 @@ public interface OdeMessages extends Messages {
   @Description("")
   String GetScannedInfoEvents();
 
+  @DefaultMessage("TestPoint")
+  @Description("")
+  String TestPointEvents();
+
   //Q10. already exist from different component, ignore or change name?
 //  @DefaultMessage("LocationChanged")
 //  @Description("")
