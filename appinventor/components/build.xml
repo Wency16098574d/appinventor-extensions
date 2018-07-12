@@ -31,6 +31,8 @@
        ===================================================================== -->
   <property name="components.pkg" value="com/google/appinventor/components" />
   <property name="zxing.pkg" value="com/google/zxing" />
+  <property name="positioning.pkg" value="edu/polyu/appinventor/positioning" />
+
 
   <!-- =====================================================================
        Define external components properties.
@@ -193,6 +195,9 @@
           description="build and run the test suite" >
     <ai.dojunit aij-testingtarget="AndroidRuntimeTests"
                 aij-dir="${components.pkg}/runtime" >
+    </ai.dojunit>
+    <ai.dojunit aij-testingtarget="AndroidRuntimeTests"
+                aij-dir="${positioning.pkg}" >
     </ai.dojunit>
   </target>
 
