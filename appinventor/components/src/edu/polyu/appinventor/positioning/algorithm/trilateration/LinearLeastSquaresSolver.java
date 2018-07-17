@@ -1,4 +1,4 @@
-package edu.polyu.appinventor.positioning;
+package edu.polyu.appinventor.positioning.algorithm.trilateration;
 
 
 import org.apache.commons.math3.linear.*;

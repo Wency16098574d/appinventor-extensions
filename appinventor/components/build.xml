@@ -193,9 +193,9 @@
   <target name="AndroidRuntimeTests"
           depends="AndroidRuntime"
           description="build and run the test suite" >
-    <ai.dojunit aij-testingtarget="AndroidRuntimeTests"
-                aij-dir="${components.pkg}/runtime" >
-    </ai.dojunit>
+    <!--<ai.dojunit aij-testingtarget="AndroidRuntimeTests"-->
+                <!--aij-dir="${components.pkg}/runtime" >-->
+    <!--</ai.dojunit>-->
     <ai.dojunit aij-testingtarget="AndroidRuntimeTests"
                 aij-dir="${positioning.pkg}" >
     </ai.dojunit>

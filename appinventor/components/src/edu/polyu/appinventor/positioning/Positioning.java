@@ -1,5 +1,7 @@
 package edu.polyu.appinventor.positioning;
 
+import android.os.Handler;
+
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.PropertyCategory;
@@ -9,9 +11,7 @@ import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
 import com.google.appinventor.components.annotations.UsesLibraries;
 import com.google.appinventor.components.annotations.UsesPermissions;
-
 import com.google.appinventor.components.common.ComponentCategory;
-
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.runtime.AndroidNonvisibleComponent;
 import com.google.appinventor.components.runtime.Component;
@@ -32,17 +32,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer.Optimum;
-import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
-import android.os.Handler;
+import edu.polyu.appinventor.positioning.filter.*;
+import edu.polyu.appinventor.positioning.convertor.*;
+import edu.polyu.appinventor.positioning.algorithm.*;
+
+@UsesLibraries(libraries = "commonsmath3.jar")
+
 
 
 //?verion, nonvisible
@@ -60,54 +59,21 @@ import android.os.Handler;
         + "android.permission.ACCESS_COARSE_LOCATION")
 
 
-@UsesLibraries(libraries = "commonsmath3.jar")
-
 public class Positioning extends AndroidNonvisibleComponent implements Component {
 
     private static final String LOG_TAG = "Positioning";
+//    private final ComponentContainer container;
+//    private final Handler uiThread;
 
-    private final ComponentContainer container;
-    private final Handler uiThread = new Handler();
-
-    private List<String> BeaconListString = new ArrayList<String>();
-    private List<Beacon> BeaconList = new ArrayList<Beacon>();
-    private HashMap<Beacon, List<Float>> hmap = new HashMap<Beacon, List<Float>>();
-    private double locX;
-    private double locY;
+    private List<String> BeaconListString;
+    private List<Beacon> BeaconList;
+    private Location loc;
     private int N = 0;
-    private long lastCalTime = Calendar.getInstance().getTimeInMillis(); //A3. Intialize the time or later? add judgement
+    private long lastCalTime; //A3.  add judgement
     private long Interval = 2000; //in microsecends
-
-
-    private class Beacon {
-        private String ID;
-        private float X;
-        private float Y;
-        private List<Integer> Rssi;
-
-        public Beacon(String ID, float X, float Y){
-            this.ID = new String(ID);
-            this.X = X;
-            this.Y = Y;
-            Rssi = new ArrayList<Integer>();
-        }
-
-        public String getBeacon(){  return ID + X + Y;  }
-
-        public String getID(){  return ID;   }
-
-        public float getX(){    return X;   }
-
-        public float getY(){    return Y;   }
-
-        public List<Integer> getRssi(){    return Rssi;    };
-
-        public void setX(float X){    this.X = X; }
-
-        public void setY(float Y){    this.Y = Y; }
-
-        public void addRssi(int Rssi){  this.Rssi.add(Rssi);    }
-    }
+    private Filter F;
+    private Convertor C;
+    private Algorithm A;
 
 
     /**
@@ -117,16 +83,30 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
      */
     public Positioning(ComponentContainer container) {
         super(container.$form());
-        this.container = container;
-
-        //A2: better?
-//        Handler uiThread = new Handler();
-//        BeaconListString = new ArrayList<String>();
-//        BeaconList = new ArrayList<Beacon>();
-//        hmap = new HashMap<Beacon, List<Float>>();
-
+//        this.container = container;
+//        uiThread = new Handler();
+        BeaconListString = new ArrayList<String>();
+        BeaconList = new ArrayList<Beacon>();
+        loc = new Location(0, 0);
+        lastCalTime = Calendar.getInstance().getTimeInMillis();
+        F = new Mean();
+        C = new NUFO();
+        A = new OverlapArea();
     }
 
+    /**
+     * This constructor is for testing purposes only.
+     */
+    protected Positioning() {
+        super(null);
+        BeaconListString = new ArrayList<String>();
+        BeaconList = new ArrayList<Beacon>();
+        loc = new Location(0, 0);
+        lastCalTime = Calendar.getInstance().getTimeInMillis();
+        F = new Mean();
+        C = new NUFO();
+        A = new OverlapArea();
+    }
 
     private boolean beaconExist(String BeaconID){
         for(int i = 0; i < N; i++)
@@ -148,7 +128,6 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         Beacon beacon = new Beacon(BeaconID, X, Y);
         BeaconList.add(beacon);
         N++;
-
         return BeaconID + "," + X + "," + Y; //string
     }
 
@@ -182,7 +161,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return BeaconList.get(getBeaconIndex(BeaconID)).getX();
     }
 
-    private float getY(String BeaconID){
+    private double getY(String BeaconID){
         if(!beaconExist(BeaconID)) throw new IllegalArgumentException("Device does not exist: " + BeaconID);
         return BeaconList.get(getBeaconIndex(BeaconID)).getY();
     }
@@ -190,88 +169,88 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     @SimpleFunction
     public void DoPositioning(String BeaconID, int Rssi){
         if(!beaconExist(BeaconID)) return;
-        BeaconList.get(getBeaconIndex(BeaconID)).addRssi(Rssi);
+        BeaconList.get(getBeaconIndex(BeaconID)).addRecord(Rssi);
 
         long curTime = Calendar.getInstance().getTimeInMillis();
         if((curTime - lastCalTime) < Interval) return;
 
-
         TestPoint(curTime - lastCalTime, Interval);
-
         lastCalTime = curTime;
 
         //=====filtering======
-        List<Double> distance = filterMean();
+//        List<Double> rssi = F.filter(BeaconList);
+//        int n = 0;
+//        for(int i = 0; i < N; i++){
+//            BeaconList.get(i).setRssi(rssi.get(i));
+//            if(rssi.get(i) != null) n++;
+//        }
+        if(F.filtering(BeaconList) < 3) {TestPoint(111, F.filtering(BeaconList));   return;}
+
+//        List<Double> distance = filterMean();
+
+        //=======converting=========Y
+//        List<Double> distance;
+//        for(int i = 0; i < N; i++)  {
+//            double distance = C.convert(rssi.get(i));
+//            distance.add(distance);
+//            BeaconList.get(i).setDistance(distance);
+//        }
+        C.convert(BeaconList);
+
 
         //=======positioning========
-        int n = 0;
-        for(int i = 0; i < N; i++)  if(distance.get(i) != null) n++;
-        if(n < 3) return;
-        positioningTrilateration(distance);
+        A.calPosition(BeaconList, loc);
 
-        for(int i = 0; i < N; i++)  BeaconList.get(i).getRssi().clear();
-    }
+        for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
 
-    private double convertDistance(double rssi) {
-        double txPower = -59; //hard coded power value. Usually ranges between -59 to -65
-//      if (rssi == 0)    return -1.0;
-        double ratio = rssi * 1.0 / txPower;
-        if (ratio < 1.0) return Math.pow(ratio, 10);
-        else return ((0.89976) * Math.pow(ratio, 7.7095) + 0.111);
-    }
-
-    //TODO A7. seperate convert distance
-    //TODO
-    private List<Double> filterMean(){
-        int m, temp;
-        List<Integer> RssiList;
-        List<Double> distance = new ArrayList<Double>(N);
-
-        for(int i = 0; i < N; i++){
-            RssiList = BeaconList.get(i).getRssi();
-            m = RssiList.size();
-            temp = 0;
-
-            if(m == 0)  {   distance.add(null); continue;   }
-            for(int j = 0; j < m; j++)    temp += RssiList.get(j);
-            distance.add(convertDistance(temp/m));
-        }
-        return distance;
-    }
-
-    private void positioningTrilateration(List<Double> Distance){
-        //preparing parameters
-        TestPoint(1, 3);
-        int n = 0;
-        for(int i = 0; i < N; i++)  if(Distance.get(i) != null) n++;
-        TestPoint(2, n);
-        double[][] positions = new double[n] [2];
-        double[] distances = new double[n];
-
-        int j = 0;
-        for(int i = 0; i < n; i++){
-            if(Distance.get(i) == null) break;
-            positions[j][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
-            positions[j][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
-            distances[j++] = Double.parseDouble(String.valueOf(Distance.get(i)));
-        }
-        TestPoint(3, 3);
-
-        //algorithm
-        NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
-        Optimum optimum = solver.solve();
-
-        // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
-        RealVector standardDeviation = optimum.getSigma(0);
-        RealMatrix covarianceMatrix = optimum.getCovariances(0);
-
-        // the answer
-        double[] centroid = optimum.getPoint().toArray();
-        locX = centroid[0];
-        locY = centroid[1];
 
         //trigger the locationChanged event
-        LocationChanged(locX, locY);
+        LocationChanged(loc.getLocX(), loc.getLocY());
+
+//    private double convertDistance(double rssi) {
+//        double txPower = -59; //hard coded power value. Usually ranges between -59 to -65
+////      if (rssi == 0)    return -1.0;
+//        double ratio = rssi * 1.0 / txPower;
+//        if (ratio < 1.0) return Math.pow(ratio, 10);
+//        else return ((0.89976) * Math.pow(ratio, 7.7095) + 0.111);
+//    }
+//
+//    //TODO A7. seperate convert distance
+//
+//
+//    private void positioningTrilateration(List<Double> Distance){
+//        //preparing parameters
+//        TestPoint(1, 3);
+//        int n = 0;
+//        for(int i = 0; i < N; i++)  if(Distance.get(i) != null) n++;
+//        TestPoint(2, n);
+//        double[][] positions = new double[n] [2];
+//        double[] distances = new double[n];
+//
+//        int j = 0;
+//        for(int i = 0; i < n; i++){
+//            if(Distance.get(i) == null) break;
+//            positions[j][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
+//            positions[j][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
+//            distances[j++] = Double.parseDouble(String.valueOf(Distance.get(i)));
+//        }
+//        TestPoint(3, 3);
+//
+//        //algorithm
+//        NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
+//        Optimum optimum = solver.solve();
+//
+//        // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
+//        RealVector standardDeviation = optimum.getSigma(0);
+//        RealMatrix covarianceMatrix = optimum.getCovariances(0);
+//
+//        // the answer
+//        double[] centroid = optimum.getPoint().toArray();
+//        locX = centroid[0];
+//        locY = centroid[1];
+//
+//        //trigger the locationChanged event
+//        LocationChanged(locX, locY);
     }
 
     @SimpleEvent(description = "Trigger event when Location changes")
@@ -280,7 +259,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     }
 
     @SimpleEvent
-    public void TestPoint(final long a, final long b) {
+    public void TestPoint(final double a, final double b) {
         EventDispatcher.dispatchEvent(this, "TestPoint", a, b);
     }
 
@@ -290,9 +269,9 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     }
 
     @SimpleProperty(description = "Returns the location X.")
-    public double locX() { return locX; }
+    public double locX() { return loc.getLocX(); }
 
     @SimpleProperty(description = "Returns the location Y.")
-    public double locY() { return locY; }
+    public double locY() { return loc.getLocY(); }
 
 }

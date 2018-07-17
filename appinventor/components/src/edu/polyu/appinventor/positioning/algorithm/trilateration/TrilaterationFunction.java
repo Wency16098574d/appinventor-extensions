@@ -1,4 +1,4 @@
-package edu.polyu.appinventor.positioning;
+package edu.polyu.appinventor.positioning.algorithm.trilateration;
 import org.apache.commons.math3.fitting.leastsquares.MultivariateJacobianFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
