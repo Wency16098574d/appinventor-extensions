@@ -27,6 +27,9 @@ import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroid
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidLegoEv3SensorPortChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidLegoEv3UltrasonicSensorModeChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidLegoNxtSensorPortChoicePropertyEditor;
+import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidPositioningAlgorithmChoicePropertyEditor;
+import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidPositioningConvertorChoicePropertyEditor;
+import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidPositioningFilterChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidScreenAnimationChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidScreenOrientationChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidSensorDistIntervalChoicePropertyEditor;
@@ -245,6 +248,12 @@ public class PropertiesUtil {
       String type = editorType.substring(PropertyTypeConstants.PROPERTY_TYPE_COMPONENT.length() + 2);
       type = type.substring(type.lastIndexOf('.') + 1);
       return new YoungAndroidComponentSelectorPropertyEditor(editor, Collections.singleton(type));
+    } else if (editorType.equals(PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_ALGORITHM)){
+      return new YoungAndroidPositioningAlgorithmChoicePropertyEditor();
+    } else if (editorType.equals(PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_CONVERTOR)){
+      return new YoungAndroidPositioningConvertorChoicePropertyEditor();
+    } else if (editorType.equals(PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_FILTER)){
+      return new YoungAndroidPositioningFilterChoicePropertyEditor();
     } else {
       return new TextPropertyEditor();
     }

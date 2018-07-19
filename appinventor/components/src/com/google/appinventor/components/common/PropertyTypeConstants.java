@@ -253,4 +253,29 @@ public class PropertyTypeConstants {
    * See {@link com.google.appinventor.client.widgets.properties.ScalingChoicePropertyEditor}
    */
    public static final String PROPERTY_TYPE_SCALING = "scaling";
+
+    /**
+     * Positioning filters. * @see com.google.appinventor.client.editor.youngandroid.properties.
+
+     *  YoungAndroidPositioningAlgorithmChoicePropertyEditor
+     */
+
+    public static final String PROPERTY_TYPE_POSITIONING_ALGORITHM = "positioning_algorithm";
+
+    /**
+     * Positioning filters. * @see com.google.appinventor.client.editor.youngandroid.properties.
+
+     *  YoungAndroidPositioningConvertorChoicePropertyEditor
+     */
+
+    public static final String PROPERTY_TYPE_POSITIONING_CONVERTOR = "positioning_convertor";
+
+    /**
+     * Positioning filters. * @see com.google.appinventor.client.editor.youngandroid.properties.
+
+     *  YoungAndroidPositioningFilterChoicePropertyEditor
+     */
+
+    public static final String PROPERTY_TYPE_POSITIONING_FILTER = "positioning_filter";
+
 }

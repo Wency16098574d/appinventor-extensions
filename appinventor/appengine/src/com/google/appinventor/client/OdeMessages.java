@@ -6700,7 +6700,7 @@ public interface OdeMessages extends Messages {
   String reloadWindow();
 
   @DefaultMessage("CreateBeacon")
-  @Description("")
+  @Description("Function for creating a Beacon for positioning component")
   String CreateBeaconMethods();
 
   @DefaultMessage("AddBeacon")
@@ -6744,4 +6744,31 @@ public interface OdeMessages extends Messages {
   @Description("")
   String locY();
 
+  @DefaultMessage("mean")
+  @Description("Text for positioning filtering method choice 'mean'")
+  String meanPositioningFilter();
+
+  @DefaultMessage("median")
+  @Description("Text for positioning filtering method choice 'median'")
+  String medianPositioningFilter();
+
+  @DefaultMessage("F1")
+  @Description("Text for positioning converting method choice 'F1'")
+  String F1PositioningConvertor();
+
+  @DefaultMessage("F2")
+  @Description("Text for positioning converting method choice 'F2'")
+  String F2PositioningConvertor();
+
+  @DefaultMessage("NUFO")
+  @Description("Text for positioning converting method choice 'NUFO'")
+  String NUFOPositioningConvertor();
+
+  @DefaultMessage("trilateration")
+  @Description("Text for positioning calculation method choice 'trilateration'")
+  String trilaterationPositioningAlgorithm();
+
+  @DefaultMessage("overlaparea")
+  @Description("Text for positioning calculation method choice 'overlaparea'")
+  String overlapareaPositioningAlgorithm();
 }

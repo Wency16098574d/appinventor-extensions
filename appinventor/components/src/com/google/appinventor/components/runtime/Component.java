@@ -153,4 +153,16 @@ public interface Component {
   static final String DEFAULT_VALUE_TEXT_TO_SPEECH_COUNTRY = "";
   static final String DEFAULT_VALUE_TEXT_TO_SPEECH_LANGUAGE = "";
 
+  static final int POSITIONING_FILTER_MEAN = 0;
+  static final int POSITIONING_FILTER_MEDIAN = 1;
+
+  static final int POSITIONING_CONVERTOR_F1 = 0;
+  static final int POSITIONING_CONVERTOR_F2 = 1;
+  static final int POSITIONING_CONVERTOR_NUFO = 2;
+
+  static final int POSITIONING_ALGORITHM_TRILATERATION = 0;
+  static final int POSITIONING_ALGORITHM_OVERLAPAREA = 1;
+
+  static final long POSITIONING_DEFAULT_INTERVAL = 2000;
+
 }

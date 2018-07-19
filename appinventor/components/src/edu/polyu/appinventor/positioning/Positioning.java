@@ -69,11 +69,14 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     private List<Beacon> BeaconList;
     private Location loc;
     private int N = 0;
-    private long lastCalTime; //A3.  add judgement
-    private long Interval = 2000; //in microsecends
+    private long lastCalTime;
+    private long interval;
     private Filter F;
     private Convertor C;
     private Algorithm A;
+    private int algorithm;
+    private int convertor;
+    private int filter;
 
 
     /**
@@ -90,8 +93,12 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         loc = new Location(0, 0);
         lastCalTime = Calendar.getInstance().getTimeInMillis();
         F = new Mean();
-        C = new NUFO();
-        A = new OverlapArea();
+        C = new F1();
+        A = new Trilateration();
+        Interval(Component.POSITIONING_DEFAULT_INTERVAL);
+        Algorithm(Component.POSITIONING_ALGORITHM_TRILATERATION);
+        Convertor(Component.POSITIONING_CONVERTOR_F1);
+        Filter(Component.POSITIONING_FILTER_MEAN);
     }
 
     /**
@@ -104,8 +111,9 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         loc = new Location(0, 0);
         lastCalTime = Calendar.getInstance().getTimeInMillis();
         F = new Mean();
-        C = new NUFO();
-        A = new OverlapArea();
+        C = new F1();
+        A = new Trilateration();
+        Filter(Component.POSITIONING_FILTER_MEAN);
     }
 
     private boolean beaconExist(String BeaconID){
@@ -172,85 +180,22 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         BeaconList.get(getBeaconIndex(BeaconID)).addRecord(Rssi);
 
         long curTime = Calendar.getInstance().getTimeInMillis();
-        if((curTime - lastCalTime) < Interval) return;
+        if((curTime - lastCalTime) < interval) return;
 
-        TestPoint(curTime - lastCalTime, Interval);
+        TestPoint(curTime - lastCalTime, interval);
         lastCalTime = curTime;
 
-        //=====filtering======
-//        List<Double> rssi = F.filter(BeaconList);
-//        int n = 0;
-//        for(int i = 0; i < N; i++){
-//            BeaconList.get(i).setRssi(rssi.get(i));
-//            if(rssi.get(i) != null) n++;
-//        }
         if(F.filtering(BeaconList) < 3) {TestPoint(111, F.filtering(BeaconList));   return;}
 
-//        List<Double> distance = filterMean();
-
-        //=======converting=========Y
-//        List<Double> distance;
-//        for(int i = 0; i < N; i++)  {
-//            double distance = C.convert(rssi.get(i));
-//            distance.add(distance);
-//            BeaconList.get(i).setDistance(distance);
-//        }
         C.convert(BeaconList);
 
-
-        //=======positioning========
         A.calPosition(BeaconList, loc);
 
         for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
 
-
         //trigger the locationChanged event
         LocationChanged(loc.getLocX(), loc.getLocY());
 
-//    private double convertDistance(double rssi) {
-//        double txPower = -59; //hard coded power value. Usually ranges between -59 to -65
-////      if (rssi == 0)    return -1.0;
-//        double ratio = rssi * 1.0 / txPower;
-//        if (ratio < 1.0) return Math.pow(ratio, 10);
-//        else return ((0.89976) * Math.pow(ratio, 7.7095) + 0.111);
-//    }
-//
-//    //TODO A7. seperate convert distance
-//
-//
-//    private void positioningTrilateration(List<Double> Distance){
-//        //preparing parameters
-//        TestPoint(1, 3);
-//        int n = 0;
-//        for(int i = 0; i < N; i++)  if(Distance.get(i) != null) n++;
-//        TestPoint(2, n);
-//        double[][] positions = new double[n] [2];
-//        double[] distances = new double[n];
-//
-//        int j = 0;
-//        for(int i = 0; i < n; i++){
-//            if(Distance.get(i) == null) break;
-//            positions[j][0] = Double.parseDouble(String.valueOf(BeaconList.get(i).getX()));
-//            positions[j][1] = Double.parseDouble(String.valueOf(BeaconList.get(i).getY()));
-//            distances[j++] = Double.parseDouble(String.valueOf(Distance.get(i)));
-//        }
-//        TestPoint(3, 3);
-//
-//        //algorithm
-//        NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
-//        Optimum optimum = solver.solve();
-//
-//        // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
-//        RealVector standardDeviation = optimum.getSigma(0);
-//        RealMatrix covarianceMatrix = optimum.getCovariances(0);
-//
-//        // the answer
-//        double[] centroid = optimum.getPoint().toArray();
-//        locX = centroid[0];
-//        locY = centroid[1];
-//
-//        //trigger the locationChanged event
-//        LocationChanged(locX, locY);
     }
 
     @SimpleEvent(description = "Trigger event when Location changes")
@@ -273,5 +218,69 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
     @SimpleProperty(description = "Returns the location Y.")
     public double locY() { return loc.getLocY(); }
+
+    @SimpleProperty(
+            category = PropertyCategory.APPEARANCE,
+            userVisible = false)
+    public int Algorithm() {
+        return algorithm;
+    }
+
+    @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_ALGORITHM,
+            defaultValue = Component.POSITIONING_ALGORITHM_TRILATERATION + "")
+
+    @SimpleProperty(
+            userVisible = false)
+    public void Algorithm(int algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    @SimpleProperty(
+            category = PropertyCategory.APPEARANCE,
+            userVisible = false)
+    public int Convertor() {
+        return convertor;
+    }
+
+    @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_CONVERTOR,
+            defaultValue = Component.POSITIONING_CONVERTOR_F1 + "")
+
+    @SimpleProperty(
+            userVisible = false)
+    public void Convertor(int convertor) {
+        this.convertor = convertor;
+    }
+
+    @SimpleProperty(
+            category = PropertyCategory.APPEARANCE,
+            userVisible = false)
+    public int Filter() {
+        return filter;
+    }
+
+    @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_FILTER,
+            defaultValue = Component.POSITIONING_FILTER_MEAN + "")
+
+    @SimpleProperty(
+            userVisible = false)
+    public void Filter(int filter) {
+        this.filter = filter;
+    }
+
+    @SimpleProperty(
+            category = PropertyCategory.APPEARANCE,
+            userVisible = false)
+    public long Interval() {
+        return interval;
+    }
+
+    @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_NON_NEGATIVE_FLOAT,
+            defaultValue = Component.POSITIONING_DEFAULT_INTERVAL + "")
+
+    @SimpleProperty(
+            userVisible = false)
+    public void Interval(long interval) {
+        this.interval = interval;
+    }
 
 }
