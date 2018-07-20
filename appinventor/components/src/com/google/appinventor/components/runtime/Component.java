@@ -163,6 +163,6 @@ public interface Component {
   static final int POSITIONING_ALGORITHM_TRILATERATION = 0;
   static final int POSITIONING_ALGORITHM_OVERLAPAREA = 1;
 
-  static final long POSITIONING_DEFAULT_INTERVAL = 2000;
+  static final long POSITIONING_DEFAULT_TIMEINTERVAL = 2000;
 
 }

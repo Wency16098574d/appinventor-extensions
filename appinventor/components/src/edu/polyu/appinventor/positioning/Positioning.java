@@ -52,7 +52,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   private Location loc;
   private int N = 0;
   private long lastCalTime;
-  private long interval;
+  private long timeInterval;
   private int filter;
   private int convertor;
   private int algorithm;
@@ -70,7 +70,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
-    Interval(Component.POSITIONING_DEFAULT_INTERVAL);
+    TimeInterval(Component.POSITIONING_DEFAULT_TIMEINTERVAL);
     Algorithm(Component.POSITIONING_ALGORITHM_TRILATERATION);
     Convertor(Component.POSITIONING_CONVERTOR_F1);
     Filter(Component.POSITIONING_FILTER_MEAN);
@@ -85,7 +85,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
-    Interval(Component.POSITIONING_DEFAULT_INTERVAL);
+    TimeInterval(Component.POSITIONING_DEFAULT_TIMEINTERVAL);
     Algorithm(Component.POSITIONING_ALGORITHM_TRILATERATION);
     Convertor(Component.POSITIONING_CONVERTOR_F1);
     Filter(Component.POSITIONING_FILTER_MEAN);
@@ -154,8 +154,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     if(!beaconExist(BeaconID)) return;
     BeaconList.get(getBeaconIndex(BeaconID)).addRecord(Rssi);
     long curTime = Calendar.getInstance().getTimeInMillis();
-    if((curTime - lastCalTime) < interval) return;
-    TestPoint(curTime - lastCalTime, interval);
+    if((curTime - lastCalTime) < timeInterval) return;
+    TestPoint(curTime - lastCalTime, timeInterval);
     lastCalTime = curTime;
     if(filterObject.filtering(BeaconList) < 3) {TestPoint(111, filterObject.filtering(BeaconList));   return;}
     convertorObject.convert(BeaconList);
@@ -248,15 +248,15 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   @SimpleProperty(
     category = PropertyCategory.APPEARANCE,
     userVisible = false)
-  public long Interval() {
-        return interval;
+  public long TimeInterval() {
+        return timeInterval;
     }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_NON_NEGATIVE_FLOAT,
-    defaultValue = Component.POSITIONING_DEFAULT_INTERVAL + "")
+    defaultValue = Component.POSITIONING_DEFAULT_TIMEINTERVAL + "")
   @SimpleProperty(
     userVisible = false)
-  public void Interval(long interval) {
-    this.interval = interval;
+  public void TimeInterval(long timeInterval) {
+    this.timeInterval = timeInterval;
     }
 }
