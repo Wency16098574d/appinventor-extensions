@@ -42,7 +42,7 @@ import edu.polyu.appinventor.positioning.algorithm.*;
   category = ComponentCategory.EXTENSION,
   nonVisible = true,
   helpUrl = "http://",
-  iconName = "images/extension.png")
+  iconName = "aiwebres/positioning.png")
 //?external
 @SimpleObject(external = true)
 @UsesLibraries(libraries = "commonsmath3.jar")
@@ -70,10 +70,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
-    TimeInterval(Component.POSITIONING_DEFAULT_TIMEINTERVAL);
-    Algorithm(Component.POSITIONING_ALGORITHM_TRILATERATION);
-    Convertor(Component.POSITIONING_CONVERTOR_F1);
-    Filter(Component.POSITIONING_FILTER_MEAN);
+    TimeInterval(2000);
+    Algorithm("trilateration");
+    Convertor("Formular1");
+    Filter("mean");
   }
 
   /**
@@ -85,10 +85,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
-    TimeInterval(Component.POSITIONING_DEFAULT_TIMEINTERVAL);
-    Algorithm(Component.POSITIONING_ALGORITHM_TRILATERATION);
-    Convertor(Component.POSITIONING_CONVERTOR_F1);
-    Filter(Component.POSITIONING_FILTER_MEAN);
+    TimeInterval(2000);
+    Algorithm("trilateration");
+    Convertor("Formular1");
+    Filter("mean");
   }
 
   private boolean beaconExist(String BeaconID){
@@ -151,13 +151,14 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
   @SimpleFunction
   public void DoPositioning(String BeaconID, int Rssi){
+    TestPoint(111, 111);
     if(!beaconExist(BeaconID)) return;
     BeaconList.get(getBeaconIndex(BeaconID)).addRecord(Rssi);
     long curTime = Calendar.getInstance().getTimeInMillis();
     if((curTime - lastCalTime) < timeInterval) return;
     TestPoint(curTime - lastCalTime, timeInterval);
     lastCalTime = curTime;
-    if(filterObject.filtering(BeaconList) < 3) {TestPoint(111, filterObject.filtering(BeaconList));   return;}
+    if(filterObject.filtering(BeaconList) < 3) {TestPoint(222, filterObject.filtering(BeaconList));   return;}
     convertorObject.convert(BeaconList);
     algorithmObject.calPosition(BeaconList, loc);
     for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
@@ -197,14 +198,18 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return algorithm;
     }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_ALGORITHM,
-    defaultValue = Component.POSITIONING_ALGORITHM_TRILATERATION + "")
+  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
+    defaultValue = "trilateration", editorArgs = {"trilateration", "overlaparea"})
   @SimpleProperty(
     userVisible = false)
-  public void Algorithm(int algorithm) {
-    switch(algorithm){
-      case 0: this.algorithmObject = new Trilateration(); break;
-      case 1: this.algorithmObject = new OverlapArea(); break;
+  public void Algorithm(String algorithm) {
+    if(algorithm.equals("trilateration")) {
+      this.algorithmObject = new Trilateration();
+      this.algorithm = 0;
+    }
+    else if(algorithm.equals("overlaparea")){
+      this.algorithmObject = new OverlapArea();
+      this.algorithm = 1;
     }
   }
 
@@ -215,16 +220,23 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return convertor;
     }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_CONVERTOR,
-    defaultValue = Component.POSITIONING_CONVERTOR_F1 + "")
+  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
+    defaultValue = "Formular1", editorArgs = {"Formular1", "Formular2", "NUFO"})
   @SimpleProperty(
     userVisible = false)
-  public void Convertor(int convertor) {
-    switch(convertor){
-      case 0: this.convertorObject = new F1();  break;
-      case 1: this.convertorObject = new F2();  break;
-      case 2: this.convertorObject = new NUFO();  break;
-    }
+  public void Convertor(String convertor) {
+      if(convertor.equals("Formular1")) {
+        this.convertorObject = new F1();
+        this.convertor = 0;
+      }
+      else if(convertor.equals("Formular2")) {
+        this.convertorObject = new F2();
+        this.convertor = 1;
+      }
+      else if(convertor.equals("NUFO")) {
+        this.convertorObject = new NUFO();
+        this.convertor = 2;
+      }
   }
 
   @SimpleProperty(
@@ -234,14 +246,18 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
         return filter;
     }
 
-  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_POSITIONING_FILTER,
-    defaultValue = Component.POSITIONING_FILTER_MEAN + "")
+  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
+    defaultValue = "mean", editorArgs = {"mean", "median"})
   @SimpleProperty(
      userVisible = false)
-  public void Filter(int filter) {
-    switch(filter){
-      case 0: this.filterObject = new Mean(); break;
-      case 1: this.filterObject = new Median(); break;
+  public void Filter(String filter) {
+    if(filter.equals("mean")){
+      this.filterObject = new Mean();
+      this.filter = 0;
+    }
+    else if(filter.equals("median")) {
+      this.filterObject = new Median();
+      this.filter = 1;
     }
   }
 
@@ -253,7 +269,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_NON_NEGATIVE_FLOAT,
-    defaultValue = Component.POSITIONING_DEFAULT_TIMEINTERVAL + "")
+    defaultValue = "2000")
   @SimpleProperty(
     userVisible = false)
   public void TimeInterval(long timeInterval) {

@@ -5,7 +5,7 @@
  * Visual Blocks Language
  *
  * Copyright © 2012 Google Inc.
- * Copyright © 2012-2016 Massachusetts Institute of Technology
+ * Copyright © 2012-2017 Massachusetts Institute of Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ Blockly.Msg.en.switch_language_to_english = {
     Blockly.Msg.SORT_C = 'Sort Blocks by Category';
     Blockly.Msg.COPY_TO_BACKPACK = 'Add to Backpack';
     Blockly.Msg.COPY_ALLBLOCKS = 'Copy All Blocks to Backpack';
+    Blockly.Msg.REMOVE_FROM_BACKPACK = 'Remove from Backpack';
     Blockly.Msg.BACKPACK_GET = 'Paste All Blocks from Backpack';
     Blockly.Msg.BACKPACK_EMPTY = 'Empty the Backpack';
     Blockly.Msg.BACKPACK_CONFIRM_EMPTY = 'Are you sure you want to empty the backpack?';
@@ -106,6 +107,7 @@ Blockly.Msg.en.switch_language_to_english = {
     Blockly.ERROR_DUPLICATE_EVENT_HANDLER = "This is a duplicate event handler for this component.";
     Blockly.ERROR_COMPONENT_DOES_NOT_EXIST = "Component does not exist";
     Blockly.ERROR_BLOCK_IS_NOT_DEFINED = "This block is not defined. Delete this block!";
+    Blockly.ERROR_BREAK_ONLY_IN_LOOP = "The break block should be used only within loops";
 
 // Colour Blocks.
     Blockly.Msg.LANG_COLOUR_PICKER_HELPURL = 'http://appinventor.mit.edu/explore/ai2/support/blocks/colors#basic';
@@ -307,6 +309,11 @@ Blockly.Msg.en.switch_language_to_english = {
     Blockly.Msg.LANG_CONTROLS_CLOSE_SCREEN_WITH_PLAIN_TEXT_TOOLTIP = 'Closes the current screen and returns text to the app that '
         + 'opened this one.   This command is for returning text to non-App Inventor activities, not to App Inventor screens. '
         + 'For App Inventor Screens, as in multiple screen apps, use Close Screen with Value, not Close Screen with Plain Text.';
+
+    Blockly.Msg.LANG_CONTROLS_BREAK_HELPURL = 'http://appinventor.mit.edu/explore/ai2/support/blocks/control#break';
+    Blockly.Msg.LANG_CONTROLS_BREAK_TITLE = 'break';
+    Blockly.Msg.LANG_CONTROLS_BREAK_INPUT_TEXT = 'value';
+    Blockly.Msg.LANG_CONTROLS_BREAK_COLLAPSED_TEXT = 'break';
 
 // Logic Blocks.
     Blockly.Msg.LANG_CATEGORY_LOGIC = 'Logic';
@@ -709,6 +716,11 @@ Blockly.Msg.en.switch_language_to_english = {
     Blockly.Msg.LANG_TEXT_REPLACE_ALL_INPUT = 'replace all text %1 segment %2 replacement %3';
     Blockly.Msg.LANG_TEXT_REPLACE_ALL_TOOLTIP = 'Returns a new text obtained by replacing all occurrences\n'
         + 'of the segment with the replacement.';
+
+    Blockly.Msg.LANG_TEXT_TEXT_IS_STRING_HELPURL = 'http://appinventor.mit.edu/explore/ai2/support/blocks/text#isstring';
+    Blockly.Msg.LANG_TEXT_TEXT_IS_STRING_TITLE = 'is a string?';
+    Blockly.Msg.LANG_TEXT_TEXT_IS_STRING_INPUT_THING = 'thing';
+    Blockly.Msg.LANG_TEXT_TEXT_IS_STRING_TOOLTIP = 'Returns true if <code>thing</code> is a string.';
 
 // Lists Blocks.
     Blockly.Msg.LANG_CATEGORY_LISTS = 'Lists';
