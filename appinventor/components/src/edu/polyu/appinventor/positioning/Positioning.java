@@ -59,6 +59,13 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   private Filter filterObject;
   private Convertor convertorObject;
   private Algorithm algorithmObject;
+  static final String FILTER_MEAN = "mean";
+  static final String FILTER_MEDIAN = "median";
+  static final String CONVERTOR_FORMULAR1 = "Formular1";
+  static final String CONVERTOR_FORMULAR2 = "Formular2";
+  static final String CONVERTOR_NUFO = "NUFO";
+  static final String ALGORITHM_TRILATERATION = "trilateration";
+  static final String ALGORITHM_OVERLAPAREA = "overlaparea";
   /**
    * Creates a positioning component for calculating the position.
    *
@@ -194,20 +201,26 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   @SimpleProperty(
     category = PropertyCategory.APPEARANCE,
     userVisible = false)
-  public int Algorithm() {
-        return algorithm;
+  public String Algorithm() {
+    switch(algorithm){
+      case 0:
+        return ALGORITHM_TRILATERATION;
+      case 1:
+        return ALGORITHM_OVERLAPAREA;
     }
+    return ALGORITHM_TRILATERATION;
+  }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
-    defaultValue = "trilateration", editorArgs = {"trilateration", "overlaparea"})
+    defaultValue = ALGORITHM_TRILATERATION, editorArgs = {ALGORITHM_TRILATERATION, ALGORITHM_OVERLAPAREA})
   @SimpleProperty(
     userVisible = false)
   public void Algorithm(String algorithm) {
-    if(algorithm.equals("trilateration")) {
+    if(algorithm.equals(ALGORITHM_TRILATERATION)) {
       this.algorithmObject = new Trilateration();
       this.algorithm = 0;
     }
-    else if(algorithm.equals("overlaparea")){
+    else if(algorithm.equals(ALGORITHM_OVERLAPAREA)){
       this.algorithmObject = new OverlapArea();
       this.algorithm = 1;
     }
@@ -216,24 +229,32 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   @SimpleProperty(
     category = PropertyCategory.APPEARANCE,
     userVisible = false)
-  public int Convertor() {
-        return convertor;
+  public String Convertor() {
+    switch(convertor){
+      case 0:
+        return CONVERTOR_FORMULAR1;
+      case 1:
+        return CONVERTOR_FORMULAR2;
+      case 2:
+        return CONVERTOR_NUFO;
     }
+    return CONVERTOR_FORMULAR1;
+  }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
-    defaultValue = "Formular1", editorArgs = {"Formular1", "Formular2", "NUFO"})
+    defaultValue = CONVERTOR_FORMULAR1, editorArgs = {CONVERTOR_FORMULAR1, CONVERTOR_FORMULAR2, CONVERTOR_NUFO})
   @SimpleProperty(
     userVisible = false)
   public void Convertor(String convertor) {
-      if(convertor.equals("Formular1")) {
+      if(convertor.equals(CONVERTOR_FORMULAR1)) {
         this.convertorObject = new F1();
         this.convertor = 0;
       }
-      else if(convertor.equals("Formular2")) {
+      else if(convertor.equals(CONVERTOR_FORMULAR2)) {
         this.convertorObject = new F2();
         this.convertor = 1;
       }
-      else if(convertor.equals("NUFO")) {
+      else if(convertor.equals(CONVERTOR_NUFO)) {
         this.convertorObject = new NUFO();
         this.convertor = 2;
       }
@@ -242,20 +263,26 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   @SimpleProperty(
     category = PropertyCategory.APPEARANCE,
     userVisible = false)
-  public int Filter() {
-        return filter;
+  public String Filter() {
+    switch(filter){
+      case 0:
+        return FILTER_MEAN;
+      case 1:
+        return FILTER_MEDIAN;
     }
+    return FILTER_MEAN;
+  }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
-    defaultValue = "mean", editorArgs = {"mean", "median"})
+    defaultValue = FILTER_MEAN, editorArgs = {FILTER_MEAN, FILTER_MEDIAN})
   @SimpleProperty(
      userVisible = false)
   public void Filter(String filter) {
-    if(filter.equals("mean")){
+    if(filter.equals(FILTER_MEAN)){
       this.filterObject = new Mean();
       this.filter = 0;
     }
-    else if(filter.equals("median")) {
+    else if(filter.equals(FILTER_MEDIAN)) {
       this.filterObject = new Median();
       this.filter = 1;
     }
