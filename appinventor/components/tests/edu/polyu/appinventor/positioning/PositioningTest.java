@@ -1,12 +1,12 @@
 package edu.polyu.appinventor.positioning;
-import edu.polyu.appinventor.positioning.algorithm.*;
 
-import junit.framework.TestCase;
+import edu.polyu.appinventor.positioning.algorithm.*;
+import edu.polyu.appinventor.positioning.convertor.*;
+import edu.polyu.appinventor.positioning.filter.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import edu.polyu.appinventor.positioning.Beacon;
-import edu.polyu.appinventor.positioning.Location;
-
+import junit.framework.TestCase;
 
 public class PositioningTest extends TestCase {
 

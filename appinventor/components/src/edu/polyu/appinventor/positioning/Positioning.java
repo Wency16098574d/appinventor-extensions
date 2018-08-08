@@ -33,7 +33,7 @@ import edu.polyu.appinventor.positioning.algorithm.*;
  * Programmers could overwrite any of the filtering methods, converting formular or
  * caculation algorithm, or overwrite the whole doPositioning methods of own algorithm,
  */
-//?verion, nonvisible, helpUrl(tutorials?)
+//?verion, helpUrl(tutorials?)
 @DesignerComponent(version = 20171107,
   description = "This component calculates the indoor position based on RSSI from BLE extension." +
     "It must be used together with BLE extension. " +
