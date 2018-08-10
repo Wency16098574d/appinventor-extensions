@@ -47,7 +47,6 @@ import edu.polyu.appinventor.positioning.algorithm.*;
 @SimpleObject(external = true)
 @UsesLibraries(libraries = "commonsmath3.jar")
 public class Positioning extends AndroidNonvisibleComponent implements Component {
-  private List<String> BeaconListString;
   private List<Beacon> BeaconList;
   private Location loc;
   private int N = 0;
@@ -73,7 +72,6 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
    */
   public Positioning(ComponentContainer container) {
     super(container.$form());
-    BeaconListString = new ArrayList<String>();
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
@@ -88,7 +86,6 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
    */
   protected Positioning() {
     super(null);
-    BeaconListString = new ArrayList<String>();
     BeaconList = new ArrayList<Beacon>();
     loc = new Location(0, 0);
     lastCalTime = Calendar.getInstance().getTimeInMillis();
@@ -112,36 +109,34 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     return -1;
   }
 
+  /**
+   * Add a new beacon with the BeaconID(mac address), x-axis location and y-axis location
+   */
   @SimpleFunction
-  public String CreateBeacon(String BeaconID, float X, float Y) {
+  public void AddBeacon(String BeaconID, float X, float Y) {
     if(beaconExist(BeaconID)) throw new IllegalArgumentException("Device already exists: " + BeaconID);
     Beacon beacon = new Beacon(BeaconID, X, Y);
     BeaconList.add(beacon);
     N++;
-    return BeaconID + ", " + X + ", " + Y; //string
   }
 
-  @SimpleFunction
-  public void AddBeacon(String BeaconID) {
-    if(beaconExist(BeaconID)) throw new IllegalArgumentException("Device already exists: " + BeaconID);
-    BeaconListString.add(BeaconID);   //string
-    //BeaconString is returned by CretedBeacon, no need to add to BeaconList
-    N++;
-  }
-
+  /**
+   * Change the x and y location of the beacon with the same input BeaconID.
+   */
   @SimpleFunction
   public void SetBeacon(String BeaconID, float X, float Y) {
     if(!beaconExist(BeaconID)) throw new IllegalArgumentException("Device does not exist: " + BeaconID);
-    BeaconListString.set(getBeaconIndex(BeaconID), CreateBeacon(BeaconID, X, Y) );//string
     Beacon beacon = BeaconList.get(getBeaconIndex(BeaconID));
     beacon.setX(X);
     beacon.setX(Y);
   }
 
+  /**
+   * Delete the beacon with the same input BeaconID
+   */
   @SimpleFunction
   public void DeleteBeacon(String BeaconID) {
     if(!beaconExist(BeaconID)) throw new IllegalArgumentException("Device does not exist: " + BeaconID);
-    BeaconListString.remove(getBeaconIndex(BeaconID)); //string
     BeaconList.remove(getBeaconIndex(BeaconID));
     N--;
   }
@@ -156,16 +151,20 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     return BeaconList.get(getBeaconIndex(BeaconID)).getY();
   }
 
+  /**
+   * This function stores the input BeaconID and Rssi,
+   * calculates the current x, y value of the location after each time interval
+   * by the selected filtering, converting and calculating algorithm,
+   * and clear all the rssi records.
+   */
   @SimpleFunction
   public void DoPositioning(String BeaconID, int Rssi){
-    TestPoint(111, 111);
     if(!beaconExist(BeaconID)) return;
     BeaconList.get(getBeaconIndex(BeaconID)).addRecord(Rssi);
     long curTime = Calendar.getInstance().getTimeInMillis();
     if((curTime - lastCalTime) < timeInterval) return;
-    TestPoint(curTime - lastCalTime, timeInterval);
     lastCalTime = curTime;
-    if(filterObject.filtering(BeaconList) < 3) {TestPoint(222, filterObject.filtering(BeaconList));   return;}
+    if(filterObject.filtering(BeaconList) < 3)  return;
     convertorObject.convert(BeaconList);
     algorithmObject.calPosition(BeaconList, loc);
     for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
@@ -173,27 +172,33 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     LocationChanged(loc.getLocX(), loc.getLocY());
   }
 
+
   @SimpleEvent(description = "Trigger event when Location changes")
   public void LocationChanged(final double locX, final double locY) {
     EventDispatcher.dispatchEvent(this, "LocationChanged", locX, locY);
   }
 
-  @SimpleEvent
-  public void TestPoint(final double a, final double b) {
-        EventDispatcher.dispatchEvent(this, "TestPoint", a, b);
-    }
+//  //This event is for test only
+//  @SimpleEvent
+//  public void TestPoint(final double a, final double b) {
+//        EventDispatcher.dispatchEvent(this, "TestPoint", a, b);
+//    }
 
-  @SimpleProperty(description = "Returns a list of the Beacons.")
+  @SimpleProperty(description = "Returns a list of the BeaconID, x and y separeated by comma (string)." +
+    "For example, \"00:A0:50:00:00:04,3,7\" is a string of a beacon with ID 00:A0:50:00:00:04, x-value 3 and y-value 7.")
   public List<String> BeaconListString() {//string
-        return BeaconListString;
+    List<String> BeaconListString = new ArrayList<String>();
+    for(int i = 0; i < N; i++)
+      BeaconListString.add(BeaconList.get(i).getBeacon());
+    return BeaconListString;
     }
 
-  @SimpleProperty(description = "Returns the location X.")
+  @SimpleProperty(description = "Returns the latest location X.")
   public double locX() {
     return loc.getLocX();
   }
 
-  @SimpleProperty(description = "Returns the location Y.")
+  @SimpleProperty(description = "Returns the latest location Y.")
   public double locY() {
     return loc.getLocY();
   }

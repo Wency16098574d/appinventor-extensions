@@ -20,7 +20,7 @@ public class Beacon {
     Distance = 0;
   }
 
-  public String getBeacon(){  return ID + ", " + X + ", " + Y;  }
+  public String getBeacon(){  return ID + "," + X + "," + Y;  }
 
   public String getID(){  return ID;   }
 
