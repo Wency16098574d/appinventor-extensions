@@ -1,4 +1,4 @@
-package edu.polyu.appinventor.positioning.algorithm.trilateration;
+package edu.polyu.appinventor.positioning.algorithm.leastRatio;
 import org.apache.commons.math3.fitting.leastsquares.MultivariateJacobianFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -13,7 +13,7 @@ import org.apache.commons.math3.util.Pair;
  * @author scott
  *
  */
-public class TrilaterationFunction implements MultivariateJacobianFunction {
+public class LeastRatioFunction implements MultivariateJacobianFunction {
 
 	protected static final double epsilon = 1E-7;
 
@@ -27,7 +27,7 @@ public class TrilaterationFunction implements MultivariateJacobianFunction {
 	 */
 	protected final double distances[];
 
-	public TrilaterationFunction(double positions[][], double distances[]) {
+	public LeastRatioFunction(double positions[][], double distances[]) {
 
 		if(positions.length < 2) {
 			throw new IllegalArgumentException("Need at least two positions.");
@@ -75,12 +75,22 @@ public class TrilaterationFunction implements MultivariateJacobianFunction {
 		double[] pointArray = point.toArray();
 
 		double[][] jacobian = new double[distances.length][pointArray.length];
-		for (int i = 0; i < jacobian.length; i++) {
-			for (int j = 0; j < pointArray.length; j++) {
-				jacobian[i][j] = 2 * pointArray[j] - 2 * positions[i][j];
+
+		int N = this.distances.length;
+
+		for (int i = 0; i < N; i++) {
+			double temp1 = 0.0;
+			for (int k = 0; k < pointArray.length; k++)
+				temp1 += (pointArray[k] - this.getPositions()[i][k]) * (pointArray[k] - this.getPositions()[i][k]);
+			for (int j = 1; j < N; j++) {
+				double temp2 = 0.0;
+				for (int k = 0; k < pointArray.length; k++) {
+					temp2 += (pointArray[k] - this.getPositions()[j][k]) * (pointArray[k] - this.getPositions()[j][k]);
+				}
+				for (int k = 0; k < pointArray.length; k++)
+					jacobian[i * (N - 1) + j][k] = (2 * pointArray[k] - 2 * positions[i][k]) * temp2 - (2 * pointArray[k] - 2 * positions[j][k]) * temp1 / (temp2 * temp2);
 			}
 		}
-
 		return new Array2DRowRealMatrix(jacobian);
 	}
 
@@ -90,17 +100,28 @@ public class TrilaterationFunction implements MultivariateJacobianFunction {
 		// input
 		double[] pointArray = point.toArray();
 
-		// output
-		double[] resultPoint = new double[this.distances.length];
+		int N = this.distances.length;
 
-		// compute least squares
-		for (int i = 0; i < resultPoint.length; i++) {
-			resultPoint[i] = 0.0;
-			// calculate sum, add to overall
-			for (int j = 0; j < pointArray.length; j++) {
-				resultPoint[i] += (pointArray[j] - this.getPositions()[i][j]) * (pointArray[j] - this.getPositions()[i][j]);
+		// output with length N * (N - 1)
+		double[] resultPoint = new double[N * (N - 1)];
+
+		// compute least ratio
+		for (int i = 0; i < N; i++) {
+			double temp1 = 0.0;
+			//temp1 = (x - xi) ^ 2 + (y - yi) ^ 2
+			for (int k = 0; k < pointArray.length; k++) {
+				temp1 += (pointArray[k] - this.getPositions()[i][k]) * (pointArray[k] - this.getPositions()[i][k]);
 			}
-			resultPoint[i] -= (this.getDistances()[i]) * (this.getDistances()[i]);
+			// calculate sum, add to overall
+			double temp2 = 0.0;
+			for (int j = 1; j < N; j++) {
+				for (int k = 0; k < pointArray.length; k++) {
+					// temp2 = (x - xj) ^ 2 + (y - yj) ^2
+					temp2 += (pointArray[k] - this.getPositions()[j][k]) * (pointArray[k] - this.getPositions()[j][k]);
+				}
+				//res = temp1 / temp2 - (di / dj) ^ 2
+				resultPoint[i * (N - 1) + j] = temp1 / temp2 - (this.getDistances()[i] / this.getDistances()[j]) * (this.getDistances()[i] / this.getDistances()[j]);
+			}
 		}
 
 		RealMatrix jacobian = jacobian(point);

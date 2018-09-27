@@ -64,6 +64,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   static final String CONVERTOR_FORMULAR2 = "Formular2";
   static final String CONVERTOR_NUFO = "NUFO";
   static final String ALGORITHM_TRILATERATION = "trilateration";
+  static final String ALGORITHM_LEASTRATIO = "leastRatio";
   static final String ALGORITHM_OVERLAPAREA = "overlaparea";
   /**
    * Creates a positioning component for calculating the position.
@@ -203,6 +204,39 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     return loc.getLocY();
   }
 
+  @SimpleProperty(description = "Returns the largest beacon location X.")
+  public double MaxX(){
+    double maxX = BeaconList.get(0).getX();
+    for(int i = 1; i < N; i++)
+      if(BeaconList.get(i).getX() > maxX) maxX = BeaconList.get(i).getX();
+    return maxX;
+  }
+
+  @SimpleProperty(description = "Returns the largest beacon location Y.")
+  public double MaxY(){
+    double maxY = BeaconList.get(0).getY();
+    for(int i = 1; i < N; i++)
+      if(BeaconList.get(i).getY() > maxY) maxY = BeaconList.get(i).getY();
+    return maxY;
+  }
+
+  @SimpleProperty(description = "Returns the smallest beacon location X.")
+  public double MinX(){
+    double minX = BeaconList.get(0).getX();
+    for(int i = 1; i < N; i++)
+      if(BeaconList.get(i).getY() < minX) minX = BeaconList.get(i).getX();
+    return minX;
+  }
+
+  @SimpleProperty(description = "Returns the smallest beacon location Y.")
+  public double MinY(){
+    double minY = BeaconList.get(0).getY();
+    for(int i = 1; i < N; i++)
+      if(BeaconList.get(i).getY() < minY) minY = BeaconList.get(i).getY();
+    return minY;
+  }
+
+
   @SimpleProperty(
     category = PropertyCategory.APPEARANCE,
     userVisible = false)
@@ -211,13 +245,15 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
       case 0:
         return ALGORITHM_TRILATERATION;
       case 1:
+        return ALGORITHM_LEASTRATIO;
+      case 2:
         return ALGORITHM_OVERLAPAREA;
     }
     return ALGORITHM_TRILATERATION;
   }
 
   @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
-    defaultValue = ALGORITHM_TRILATERATION, editorArgs = {ALGORITHM_TRILATERATION, ALGORITHM_OVERLAPAREA})
+    defaultValue = ALGORITHM_TRILATERATION, editorArgs = {ALGORITHM_TRILATERATION, ALGORITHM_LEASTRATIO, ALGORITHM_OVERLAPAREA})
   @SimpleProperty(
     userVisible = false)
   public void Algorithm(String algorithm) {
@@ -225,9 +261,13 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
       this.algorithmObject = new Trilateration();
       this.algorithm = 0;
     }
+    else if(algorithm.equals(ALGORITHM_LEASTRATIO)){
+      this.algorithmObject = new LeastRatio();
+      this.algorithm = 1;
+    }
     else if(algorithm.equals(ALGORITHM_OVERLAPAREA)){
       this.algorithmObject = new OverlapArea();
-      this.algorithm = 1;
+      this.algorithm = 2;
     }
   }
 

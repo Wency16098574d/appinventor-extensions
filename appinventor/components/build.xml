@@ -226,6 +226,9 @@
         <include name="org/robolectric/**/*.java" />
       </aij-supplemental-includes>
     </ai.dojunit>
+    <ai.dojunit aij-testingtarget="AndroidRuntimeTests"
+                aij-dir="${positioning.pkg}" >
+    </ai.dojunit>
   </target>
 
   <!-- =====================================================================
