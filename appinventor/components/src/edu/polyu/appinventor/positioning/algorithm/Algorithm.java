@@ -5,5 +5,5 @@ import edu.polyu.appinventor.positioning.Beacon;
 import edu.polyu.appinventor.positioning.Location;
 
 public interface Algorithm{
-  public void calPosition(List<Beacon> BeaconList, Location loc);
+  public Location calPosition(List<Beacon> BeaconList);
 }

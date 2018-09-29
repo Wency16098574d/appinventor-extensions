@@ -7,7 +7,7 @@ import edu.polyu.appinventor.positioning.Beacon;
 import edu.polyu.appinventor.positioning.Location;
 
 public class OverlapArea implements Algorithm{
-  public void calPosition(List<Beacon> BeaconList, Location loc) {
+  public Location calPosition(List<Beacon> BeaconList) {
     int N = BeaconList.size();
     double minX = BeaconList.get(0).getX(), maxX = BeaconList.get(0).getX();
     double minY = BeaconList.get(0).getY(), maxY = BeaconList.get(0).getY();
@@ -59,10 +59,10 @@ public class OverlapArea implements Algorithm{
             resLIterator.remove();
         }
       }
-      else {  loc.setLocation(-1, -1);return;   }
+      else {  return new Location(-1, -1);   }
     }
     //find the minX maxX, minY and maxY in the resL list
-    if(resL.size() == 0) {loc.setLocation(BeaconList.get(index).getX(), BeaconList.get(index).getY());    return;}
+    if(resL.size() == 0) {return new Location(BeaconList.get(index).getX(), BeaconList.get(index).getY());}
     double resMinX = resL.get(0).getLocX(), resMaxX = resL.get(0).getLocX();
     double resMinY = resL.get(0).getLocY(), resMaxY = resL.get(0).getLocY();
     for(int i = 1; i < resL.size(); i++){
@@ -71,6 +71,6 @@ public class OverlapArea implements Algorithm{
       if(resL.get(i).getLocY() < resMinY) resMinY = resL.get(i).getLocY();
       if(resL.get(i).getLocY() > resMaxY) resMaxY = resL.get(i).getLocY();
     }
-    loc.setLocation((resMinX + resMaxX) / 2, (resMinY + resMaxY) / 2);
+    return new Location((resMinX + resMaxX) / 2, (resMinY + resMaxY) / 2);
   }
 }

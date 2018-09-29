@@ -24,6 +24,7 @@ import java.util.List;
 import edu.polyu.appinventor.positioning.filter.*;
 import edu.polyu.appinventor.positioning.convertor.*;
 import edu.polyu.appinventor.positioning.algorithm.*;
+import edu.polyu.appinventor.positioning.postprocessor.*;
 
 
 /**
@@ -51,13 +52,16 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   private Location loc;
   private int N = 0;
   private long lastCalTime;
+  private long lastUpdateTime;
   private long timeInterval;
   private int filter;
   private int convertor;
   private int algorithm;
+  private int postprocessor;
   private Filter filterObject;
   private Convertor convertorObject;
   private Algorithm algorithmObject;
+  private Postprocessor postprocessorObject;
   static final String FILTER_MEAN = "mean";
   static final String FILTER_MEDIAN = "median";
   static final String CONVERTOR_FORMULAR1 = "Formular1";
@@ -66,6 +70,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
   static final String ALGORITHM_TRILATERATION = "trilateration";
   static final String ALGORITHM_LEASTRATIO = "leastRatio";
   static final String ALGORITHM_OVERLAPAREA = "overlaparea";
+  static final String POSTPROCESSOR_VALIDATION = "validation";
   /**
    * Creates a positioning component for calculating the position.
    *
@@ -80,6 +85,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     Algorithm("trilateration");
     Convertor("Formular1");
     Filter("mean");
+    Postprocessor("validation");
   }
 
   /**
@@ -94,6 +100,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     Algorithm("trilateration");
     Convertor("Formular1");
     Filter("mean");
+    Postprocessor("validation");
   }
 
   private boolean beaconExist(String BeaconID){
@@ -108,6 +115,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
       if(BeaconID.equals(BeaconList.get(i).getID()))
         return i;
     return -1;
+  }
+
+  public long getLastUpdateTime(){
+    return lastUpdateTime;
   }
 
   /**
@@ -165,12 +176,16 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     long curTime = Calendar.getInstance().getTimeInMillis();
     if((curTime - lastCalTime) < timeInterval) return;
     lastCalTime = curTime;
-    if(filterObject.filtering(BeaconList) < 3)  return;
-    convertorObject.convert(BeaconList);
-    algorithmObject.calPosition(BeaconList, loc);
+    if(filterObject.filtering(BeaconList) >= 3) {
+      convertorObject.convert(BeaconList);
+      Location newLoc = algorithmObject.calPosition(BeaconList);
+      //trigger the locationChanged event
+      if (postprocessorObject.processing(this, newLoc)) {
+        lastUpdateTime = curTime;
+        LocationChanged(loc.getLocX(), loc.getLocY());
+      }
+    }
     for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
-    //trigger the locationChanged event
-    LocationChanged(loc.getLocX(), loc.getLocY());
   }
 
 
@@ -330,6 +345,28 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     else if(filter.equals(FILTER_MEDIAN)) {
       this.filterObject = new Median();
       this.filter = 1;
+    }
+  }
+
+  @SimpleProperty(
+    category = PropertyCategory.APPEARANCE,
+    userVisible = false)
+  public String Postprocessor() {
+    switch(postprocessor){
+      case 0:
+        return POSTPROCESSOR_VALIDATION;
+    }
+    return POSTPROCESSOR_VALIDATION;
+  }
+
+  @DesignerProperty(editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
+    defaultValue = POSTPROCESSOR_VALIDATION, editorArgs = {POSTPROCESSOR_VALIDATION})
+  @SimpleProperty(
+    userVisible = false)
+  public void Postprocessor(String postprocessor) {
+    if(postprocessor.equals(POSTPROCESSOR_VALIDATION)){
+      this.postprocessorObject = new Validation();
+      this.postprocessor = 0;
     }
   }
 

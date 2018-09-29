@@ -1,6 +1,9 @@
 package edu.polyu.appinventor.positioning;
 
+import com.google.appinventor.components.annotations.UsesLibraries;
 import edu.polyu.appinventor.positioning.algorithm.*;
+import edu.polyu.appinventor.positioning.algorithm.leastRatio.*;
+import edu.polyu.appinventor.positioning.algorithm.trilateration.*;
 import edu.polyu.appinventor.positioning.convertor.*;
 import edu.polyu.appinventor.positioning.filter.*;
 
@@ -8,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
 
+@UsesLibraries(libraries = "commonsmath3.jar")
 public class PositioningTest extends TestCase {
 
     private Positioning positioning;
@@ -18,6 +22,7 @@ public class PositioningTest extends TestCase {
     protected void setUp() throws Exception {
         positioning = new Positioning();
     }
+
 
 /*    public void testFilterMean() throws Exception {
         List<Beacon> BeaconList = new List<Beacon>();

@@ -1,19 +1,20 @@
+
 package edu.polyu.appinventor.positioning.algorithm;
 
-import java.util.List;
-import edu.polyu.appinventor.positioning.Beacon;
-import edu.polyu.appinventor.positioning.Location;
-import edu.polyu.appinventor.positioning.algorithm.trilateration.*;
+  import java.util.List;
+  import edu.polyu.appinventor.positioning.Beacon;
+  import edu.polyu.appinventor.positioning.Location;
+  import edu.polyu.appinventor.positioning.algorithm.trilateration.*;
 
-import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer.Optimum;
-import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+  import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer.Optimum;
+  import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
+  import org.apache.commons.math3.linear.RealMatrix;
+  import org.apache.commons.math3.linear.RealVector;
 
 public class LeastRatio implements Algorithm{
 
   //https://github.com/lemmingapex/trilateration
-  public void calPosition(List<Beacon> BeaconList, Location loc){
+  public Location calPosition(List<Beacon> BeaconList){
     //preparing parameters
     int N = BeaconList.size(), n = 0, j = 0;
     for(int i = 0; i < N; i++)  if(BeaconList.get(i).getDistance() != 0) n++;
@@ -36,6 +37,6 @@ public class LeastRatio implements Algorithm{
 
     // the answer
     double[] centroid = optimum.getPoint().toArray();
-    loc.setLocation(centroid[0], centroid[1]);
+    return new Location(centroid[0], centroid[1]);
   }
 }
