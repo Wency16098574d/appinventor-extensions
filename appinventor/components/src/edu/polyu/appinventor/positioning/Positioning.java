@@ -277,7 +277,7 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
       this.algorithm = 0;
     }
     else if(algorithm.equals(ALGORITHM_LEASTRATIO)){
-      this.algorithmObject = new LeastRatio();
+      this.algorithmObject = new LeastRatioAlgorithm();
       this.algorithm = 1;
     }
     else if(algorithm.equals(ALGORITHM_OVERLAPAREA)){
