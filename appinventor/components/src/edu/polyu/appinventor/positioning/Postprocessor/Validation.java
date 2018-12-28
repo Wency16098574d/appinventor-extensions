@@ -9,8 +9,9 @@ public class Validation implements Postprocessor{
             return false;
 
         long curTime = Calendar.getInstance().getTimeInMillis();
+        if (pos.locX() == 0 && pos.locY() == 0) return true; //if this is the first time
         double distance = Math.pow(Math.pow(newLoc.getLocX() - pos.locX(), 2) + Math.pow(newLoc.getLocY() - pos.locY(), 2), 0.5);
-        if(distance / ((pos.getLastUpdateTime() - curTime) / 2000) > 2 )
+        if(distance / ((curTime - pos.getLastUpdateTime()) / 1000) > 2 )
             return false;
 
         return true;

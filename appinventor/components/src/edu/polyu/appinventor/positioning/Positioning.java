@@ -176,14 +176,13 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     long curTime = Calendar.getInstance().getTimeInMillis();
     if((curTime - lastCalTime) < timeInterval) return;
     lastCalTime = curTime;
-    if(filterObject.filtering(BeaconList) >= 3) {
-      convertorObject.convert(BeaconList);
-      Location newLoc = algorithmObject.calPosition(BeaconList);
-      //trigger the locationChanged event
-      if (postprocessorObject.processing(this, newLoc)) {
-        lastUpdateTime = curTime;
-        LocationChanged(loc.getLocX(), loc.getLocY());
-      }
+    if (filterObject.filtering(BeaconList) < 3) return;
+    convertorObject.convert(BeaconList);
+    Location newLoc = algorithmObject.calPosition(BeaconList);
+    //trigger the locationChanged event
+    if (postprocessorObject.processing(this, newLoc)) {
+      lastUpdateTime = curTime;
+      LocationChanged(newLoc.getLocX(), newLoc.getLocY());
     }
     for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
   }
@@ -196,8 +195,8 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
 
 //  //This event is for test only
 //  @SimpleEvent
-//  public void TestPoint(final double a, final double b) {
-//        EventDispatcher.dispatchEvent(this, "TestPoint", a, b);
+//  public void TestPoint(final double a, final double b, final double c) {
+//        EventDispatcher.dispatchEvent(this, "TestPoint", a, b, c);
 //    }
 
   @SimpleProperty(description = "Returns a list of the BeaconID, x and y separeated by comma (string)." +

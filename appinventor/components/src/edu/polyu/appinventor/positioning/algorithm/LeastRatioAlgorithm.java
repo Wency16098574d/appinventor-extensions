@@ -3,11 +3,17 @@ package edu.polyu.appinventor.positioning.algorithm;
   import java.util.List;
   import edu.polyu.appinventor.positioning.Beacon;
   import edu.polyu.appinventor.positioning.Location;
+  import edu.polyu.appinventor.positioning.Positioning;
 
 public class LeastRatioAlgorithm implements Algorithm{
 
-  //https://github.com/lemmingapex/trilateration
+  static final int maxStepNum = 100;
+  static final double gamma = 0.01;
+  static final double precision = 0.00001;
+
+
   public Location calPosition(List<Beacon> BeaconList){
+
     //preparing parameters
     int N = BeaconList.size(), n = 0, l = 0;
     for(int i = 0; i < N; i++)  if(BeaconList.get(i).getDistance() != 0) n++;
@@ -21,17 +27,13 @@ public class LeastRatioAlgorithm implements Algorithm{
     }
 
     //the algorithm
-    final int maxStepNum = 100;
-    final double gamma = 0.01;
-    final double precision = 0.00001;
-
-    //the algorithm
     double [] errorMatrix = new double [n * (n - 1)];
     double [] [] derivationMatrix = new double [n * (n - 1)] [2];
 
     int m = 0;
     double x = -1, y = -1;
     double error = 0.0, lastError = 0.0, derivationX = 0.0, derivationY = 0.0;
+
 
     for (int k = 0; k < maxStepNum; k++){
       m = 0;
@@ -47,12 +49,16 @@ public class LeastRatioAlgorithm implements Algorithm{
           double xj = positions[j][0], yj = positions[j][1];
           double di = distances[i], dj = distances[j];
           //System.out.println("xi: " + xi + "\txj: " + xj + "\tdi: " + di + "\tdj: " + dj);
-          errorMatrix [m] = (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (di * di) / (dj * dj);
+          errorMatrix [m] = Math.pow((Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)), 0.5) -  di / dj ;
           //System.out.println("Error: " + errorMatrix[m]);
           error += errorMatrix[m];
-          double temp1 = Math.pow(Math.pow(x - xj, 2) + Math.pow(y - yj, 2), 2);
-          derivationMatrix [m] [0] = (2 * x - 2 * xi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * x - 2 * xj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp1;
-          derivationMatrix [m] [1] = (2 * y - 2 * yi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * y - 2 * yj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp1;;
+          double temp = Math.pow(Math.pow(x - xj, 2) + Math.pow(y - yj, 2), 2);
+          double temp1 = ((2 * x - 2 * xi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * x - 2 * xj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp);
+          double temp2 = di / dj * 0.5 * Math.pow((Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)), -0.5) * ((2 * x - 2 * xi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * x - 2 * xj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp);
+          derivationMatrix [m] [0] = temp1 - temp2;
+          double temp3 = ((2 * y - 2 * yi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * y - 2 * yj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp);
+          double temp4 = di / dj * 0.5 * Math.pow((Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)), -0.5) * ((2 * y - 2 * yi) * (Math.pow(x - xj, 2) + Math.pow(y - yj, 2)) - (2 * y - 2 * yj) * (Math.pow(x - xi, 2) + Math.pow(y - yi, 2)) / temp);
+          derivationMatrix [m] [1] = temp3 - temp4;
           //System.out.println("DerivationX: " + derivationMatrix[m] [0]);
           //System.out.println("DerivationY: " + derivationMatrix[m] [1]);
           derivationX += derivationMatrix[m] [0];
@@ -60,7 +66,7 @@ public class LeastRatioAlgorithm implements Algorithm{
         }
       }
       error /= m;
-      //System.out.println("Step " + k + ": \tError:" + error);
+      System.out.println("Step " + k + ": \tError:" + error);
 
 
       if (Math.abs(error) < precision || error == lastError) break;
