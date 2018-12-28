@@ -180,10 +180,10 @@ public class Positioning extends AndroidNonvisibleComponent implements Component
     convertorObject.convert(BeaconList);
     Location newLoc = algorithmObject.calPosition(BeaconList);
     //trigger the locationChanged event
-    if (postprocessorObject.processing(this, newLoc)) {
+    //if (postprocessorObject.processing(this, newLoc)) {//TODO
       lastUpdateTime = curTime;
       LocationChanged(newLoc.getLocX(), newLoc.getLocY());
-    }
+    //}
     for(int i = 0; i < N; i++)  BeaconList.get(i).getRecordList().clear();
   }
 
